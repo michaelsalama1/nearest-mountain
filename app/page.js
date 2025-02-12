@@ -103,7 +103,7 @@ export default function Home() {
             )}
 
         <div>
-            <p>
+            <p className="citation">
             Snethlage, M.A., Geschke, J., Spehn, E.M., Ranipeta, A., Yoccoz, N.G., Körner, Ch., Jetz, W., Fischer, M. & Urbach, D. GMBA Mountain Inventory v2. GMBA-EarthEnv. https://doi.org/10.48601/earthenv-t9k2-1407 (2022).
             </p>
         </div>
