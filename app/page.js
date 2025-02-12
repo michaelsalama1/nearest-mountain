@@ -39,74 +39,77 @@ export default function Home() {
     };
 
     return (
-        <div className="app-container">
-            <h1>Find the Nearest Mountain &#127956;</h1>
-            {latitude && longitude ? (
-                <div className="location">
-                    <p>
-                        Your Location: 
-                        <input
-                            type="number"
-                            value={latitude || ''}
-                            onChange={handleLatitudeChange}
-                            step="any"
-                            placeholder="Enter latitude"
-                            className="coord"
-                        /> 
-                        , 
-                        <input
-                            type="number"
-                            value={longitude || ''}
-                            onChange={handleLongitudeChange}
-                            step="any"
-                            placeholder="Enter longitude"
-                            className="coord"
-                        />
-                    </p>
+        <div className="full-container">
+            <div className="app-container">
+                <h1>Find the Nearest Mountain &#127956;</h1>
+                {latitude && longitude ? (
+                    <div className="location">
+                        <p>
+                            Your Location: 
+                            <input
+                                type="number"
+                                value={latitude || ''}
+                                onChange={handleLatitudeChange}
+                                step="any"
+                                placeholder="Enter latitude"
+                                className="coord"
+                            /> 
+                            , 
+                            <input
+                                type="number"
+                                value={longitude || ''}
+                                onChange={handleLongitudeChange}
+                                step="any"
+                                placeholder="Enter longitude"
+                                className="coord"
+                            />
+                        </p>
+                    </div>
+                ) : (
+                    <p>Fetching location...</p>
+                )}
+                
+                <div className="elevation-control">
+                    <label htmlFor="elevation">Desired Elevation (meters): </label>
+                    <input
+                        type="number"
+                        id="elevation"
+                        value={elevation}
+                        onChange={handleElevationChange}
+                        min="0"
+                        placeholder="Enter elevation in meters"
+                        className="elevation-input"
+                    />
                 </div>
-            ) : (
-                <p>Fetching location...</p>
-            )}
-            
-            <div className="elevation-control">
-                <label htmlFor="elevation">Desired Elevation (meters): </label>
-                <input
-                    type="number"
-                    id="elevation"
-                    value={elevation}
-                    onChange={handleElevationChange}
-                    min="0"
-                    placeholder="Enter elevation in meters"
-                    className="elevation-input"
-                />
-            </div>
-            
-            {nearestMountain ? (
-                <div className="mountain-info">
-                    <p><strong>Nearest Mountain Range:<br></br>{nearestMountain.name}</strong></p>
-                    <p>Location: {nearestMountain.latitude}, {nearestMountain.longitude}</p>
-                    <p>Distance: {nearestMountain.distance_km} kilometers away</p>
-                    <p><strong>Elevation: </strong>{nearestMountain.elevation_high}m</p>
-                    <p>
-                        <a
-                            href={`https://www.google.com/maps?q=${nearestMountain.latitude},${nearestMountain.longitude}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="google-map-link"
-                        >
-                          &#9968; View on Google Maps &#9968;
-                        </a>
-                    </p>
-                </div>
-            ) : (
-                <p>Loading nearest mountain...</p>
-            )}
+                
+                {nearestMountain ? (
+                    <div className="mountain-info">
+                        <p><strong>Nearest Mountain Range:<br></br>{nearestMountain.name}</strong></p>
+                        <p>Location: {nearestMountain.latitude}, {nearestMountain.longitude}</p>
+                        <p>Distance: {nearestMountain.distance_km} kilometers away</p>
+                        <p><strong>Elevation: </strong>{nearestMountain.elevation_high}m</p>
+                        <p>
+                            <a
+                                href={`https://www.google.com/maps?q=${nearestMountain.latitude},${nearestMountain.longitude}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="google-map-link"
+                            >
+                            &#9968; View on Google Maps &#9968;
+                            </a>
+                        </p>
+                    </div>
+                ) : (
+                    <p>Loading nearest mountain...</p>
+                )}
 
-        <div>
-            <p className="citation">
-            Snethlage, M.A., Geschke, J., Spehn, E.M., Ranipeta, A., Yoccoz, N.G., Körner, Ch., Jetz, W., Fischer, M. & Urbach, D. GMBA Mountain Inventory v2. GMBA-EarthEnv. https://doi.org/10.48601/earthenv-t9k2-1407 (2022).
-            </p>
-        </div>
+                
+            </div>
+            <div className="citation">
+                    <p>
+                    Dataset:<br />Snethlage, M.A., Geschke, J., Spehn, E.M., Ranipeta, A., Yoccoz, N.G., Körner, Ch., Jetz, W., Fischer, M. & Urbach, D. GMBA Mountain Inventory v2. GMBA-EarthEnv. https://doi.org/10.48601/earthenv-t9k2-1407 (2022).
+                    </p>
+                </div>
         </div>
         
     );

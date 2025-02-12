@@ -1,0 +1,4 @@
+{
+  "/page": "app/page.js",
+  "/api/nearestMountain/route": "app/api/nearestMountain/route.js"
+}

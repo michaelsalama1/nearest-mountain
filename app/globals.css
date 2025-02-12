@@ -114,6 +114,14 @@ input.coord{
   padding-left:10px
 }
 
-.citation{
+.citation p{
   font-size:6px;
+  color:white;
+  text-align: center;
+  margin-top:20px;
+}
+
+.citation{
+  width:60%;
+  margin:auto;
 }
