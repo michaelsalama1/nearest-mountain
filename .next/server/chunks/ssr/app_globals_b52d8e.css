@@ -422,14 +422,14 @@ input.coord {
   padding-left: 10px;
 }
 
-.citation p {
-  font-size: 6px;
+.about button {
+  font-size: 10px;
   color: #fff;
   text-align: center;
   margin-top: 20px;
 }
 
-.citation {
+.about {
   width: 60%;
   margin: auto;
 }
@@ -489,6 +489,55 @@ p.your-loc {
   cursor: pointer;
   border: none;
   border-radius: 5px;
+}
+
+.about-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #000000d9;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.about-container {
+  background: #222;
+  padding: 20px;
+  max-width: 600px;
+  text-align: center;
+  border-radius: 10px;
+  position: relative;
+}
+
+.about-container p {
+  font-size: 14px;
+}
+
+p.citation {
+  font-size: 8px;
+}
+
+.close-about {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #e0a0a0;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 12px;
+  border-radius: 5px;
+  transition: all .25s;
+}
+
+.close-about:hover {
+  background: #8b0000;
 }
 
 /*# sourceMappingURL=app_globals_b52d8e.css.map*/

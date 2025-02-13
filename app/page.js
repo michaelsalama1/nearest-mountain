@@ -6,20 +6,18 @@ export default function Home() {
     const [latitude, setLatitude] = useState(null);
     const [longitude, setLongitude] = useState(null);
     const [nearestMountain, setNearestMountain] = useState(null);
-    const [elevation, setElevation] = useState(500); // Default elevation set to 500ft (~150m)
-    const [showCoordinateInput, setShowCoordinateInput] = useState(false); // State to toggle coordinate input visibility
-    const [newLatitude, setNewLatitude] = useState(""); // State for new latitude input
-    const [newLongitude, setNewLongitude] = useState(""); // State for new longitude input
-    const [locationError, setLocationError] = useState(false); // State to track location errors
+    const [elevation, setElevation] = useState(500);
+    const [showCoordinateInput, setShowCoordinateInput] = useState(false);
+    const [newLatitude, setNewLatitude] = useState("");
+    const [newLongitude, setNewLongitude] = useState("");
+    const [locationError, setLocationError] = useState(false);
+    const [showAbout, setShowAbout] = useState(false); // State to toggle About section
 
     const generateRandomPeak = () => {
-        // Generate a random peak ID (1 to 192424)
         const randomId = Math.floor(Math.random() * 192424) + 1;
-        // Create the URL for the random peak
         const peakUrl = `https://www.peakbagger.com/peak.aspx?pid=${randomId}`;
-        // Open the random peak URL in a new tab
         window.open(peakUrl, "_blank");
-    }
+    };
 
     useEffect(() => {
         if ("geolocation" in navigator) {
@@ -27,20 +25,18 @@ export default function Home() {
                 (position) => {
                     setLatitude(position.coords.latitude);
                     setLongitude(position.coords.longitude);
-                    setLocationError(false); // Clear error if location is successfully retrieved
+                    setLocationError(false);
                 },
                 () => {
-                    // Geolocation unavailable, show manual input
                     setLocationError(true);
                     setShowCoordinateInput(true);
                 }
             );
         } else {
-            // Geolocation is not supported by the browser, show manual input
             setLocationError(true);
             setShowCoordinateInput(true);
         }
-    }, []); // Trigger once on mount
+    }, []);
 
     useEffect(() => {
         if ((latitude || newLatitude) && (longitude || newLongitude)) {
@@ -51,7 +47,7 @@ export default function Home() {
                 .then((data) => setNearestMountain(data))
                 .catch((error) => console.error("Error fetching data:", error));
         }
-    }, [latitude, longitude, elevation, newLatitude, newLongitude]); // Trigger when latitude, longitude, or elevation changes
+    }, [latitude, longitude, elevation, newLatitude, newLongitude]);
 
     const handleElevationChange = (event) => {
         setElevation(event.target.value);
@@ -59,10 +55,8 @@ export default function Home() {
 
     const handleCoordinateSubmit = (event) => {
         event.preventDefault();
-        // Set the coordinates from input
         setLatitude(parseFloat(newLatitude));
         setLongitude(parseFloat(newLongitude));
-        // Hide input fields after submission
         setShowCoordinateInput(false);
     };
 
@@ -85,7 +79,7 @@ export default function Home() {
                         )}
                     </div>
                 ) : (
-                    <p className="error-code">{locationError ? "location disabled" : "Fetching location..."}</p>
+                    <p className="error-code">{locationError ? "Location disabled" : "Fetching location..."}</p>
                 )}
 
                 {showCoordinateInput && (
@@ -110,7 +104,6 @@ export default function Home() {
                                 required
                             />
                         </div>
-
                         <button type="submit" className="submit-coordinates-button">
                             Go &#x1f4cd;
                         </button>
@@ -132,7 +125,7 @@ export default function Home() {
 
                 {nearestMountain ? (
                     <div className="mountain-info">
-                        <p><strong>Nearest Mountain Range:<br></br>{nearestMountain.name}</strong></p>
+                        <p><strong>Nearest Mountain Range:<br />{nearestMountain.name}</strong></p>
                         <p>Location: {nearestMountain.latitude}, {nearestMountain.longitude}</p>
                         <p>Distance: {nearestMountain.distance_km} kilometers away</p>
                         <p><strong>Max Elevation: </strong>{nearestMountain.elevation_high}m</p>
@@ -143,11 +136,11 @@ export default function Home() {
                                 rel="noopener noreferrer"
                                 className="google-map-link"
                             >
-                            View on Google Maps
+                                View on Google Maps
                             </a>
                         </p>
                         <button onClick={generateRandomPeak} className="random-peak-button">
-                        &#9968; Random Peak &#9968;
+                            &#9968; Random Peak &#9968;
                         </button>
                     </div>
                 ) : (
@@ -155,11 +148,36 @@ export default function Home() {
                 )}
             </div>
 
-            <div className="citation">
-                <p>
-                    Dataset:<br />Snethlage, M.A., Geschke, J., Spehn, E.M., Ranipeta, A., Yoccoz, N.G., Körner, Ch., Jetz, W., Fischer, M. & Urbach, D. GMBA Mountain Inventory v2. GMBA-EarthEnv. https://doi.org/10.48601/earthenv-t9k2-1407 (2022).
-                </p>
+            <div className="about">
+                <button onClick={() => setShowAbout(true)}>
+                    about
+                </button>
             </div>
+
+            {showAbout && (
+                <div className="about-overlay">
+                    <button className="close-about" onClick={() => setShowAbout(false)}>
+                            ✖ Close
+                        </button>
+                    <div className="about-container">
+                        <p>
+                            Welcome to <code>nearestmountain.com</code>. This is a simple calculator that determines the closest mountain range to your current location. It uses the GMBA Mountain Inventory database, cited below, and therefore output coordinates currently link to the geographic center of the nearest range, not mountain peaks themselves. 
+                        </p>
+                        <p>
+                        The random peak generator just links to a random listing on <code>peakbagger.com</code>.
+                        </p>
+                        <p>
+                            Background: Nevado Sajama, Bolivia.
+                        </p>
+                        <p>
+                            If you would like to fork this project, you can reach me at <code>me@michaelsalama.com</code>
+                        </p>
+                        <p className="citation">
+                            Dataset: Snethlage, M.A., Geschke, J., Spehn, E.M., Ranipeta, A., Yoccoz, N.G., Körner, Ch., Jetz, W., Fischer, M. & Urbach, D. GMBA Mountain Inventory v2. GMBA-EarthEnv. https://doi.org/10.48601/earthenv-t9k2-1407 (2022).
+                        </p>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
