@@ -24,8 +24,8 @@ export async function GET(req) {
                 name: columns[3], // Assuming column 3 is the mountain name
                 lat: parseFloat(columns[39]), // Assuming column 39 is latitude
                 lon: parseFloat(columns[40]), // Assuming column 40 is longitude
-                elevation_low: parseInt(columns[37]), // Assuming column 35 is low elevation
-                elevation_high: parseInt(columns[38]), // Assuming column 36 is high elevation
+                elevation_low: parseInt(columns[36]), // Assuming column 35 is low elevation
+                elevation_high: parseInt(columns[37]), // Assuming column 36 is high elevation
                 range: columns[10], // Assuming column 28 is the range
                 countries: columns[43], // Assuming column 43 is the countries
                 regions: columns[48], // Assuming column 48 is regions

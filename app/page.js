@@ -87,8 +87,7 @@ export default function Home() {
                         <p><strong>Nearest Mountain Range:<br></br>{nearestMountain.name}</strong></p>
                         <p>Location: {nearestMountain.latitude}, {nearestMountain.longitude}</p>
                         <p>Distance: {nearestMountain.distance_km} kilometers away</p>
-                        <p>Unit: {nearestMountain.map_unit}</p>
-                        <p><strong>Elevation: </strong>{nearestMountain.elevation_high}m</p>
+                        <p><strong>Elevation: </strong>{nearestMountain.elevation_low}m - {nearestMountain.elevation_high}m</p>
                         <p>
                             <a
                                 href={`https://www.google.com/maps?q=${nearestMountain.latitude},${nearestMountain.longitude}`}
