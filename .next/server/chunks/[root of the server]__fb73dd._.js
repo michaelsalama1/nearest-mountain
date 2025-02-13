@@ -96,9 +96,10 @@ async function GET(req) {
                 elevation_high: parseInt(columns[38]),
                 range: columns[10],
                 countries: columns[43],
-                regions: columns[48]
+                regions: columns[48],
+                map_unit: columns[31]
             };
-        }).filter((m)=>!isNaN(m.lat) && !isNaN(m.lon)); // Remove invalid data
+        }).filter((m)=>!isNaN(m.lat) && !isNaN(m.lon) && m.map_unit !== "Aggregated"); // Filter rows where type is not "Aggregated"
         // Find the nearest mountain with elevation above the minimum threshold
         let nearest = null;
         let minDistance = Infinity;
@@ -137,7 +138,8 @@ async function GET(req) {
             elevation_low: nearest.elevation_low,
             elevation_high: nearest.elevation_high,
             elevation_range: nearest.elevation_high - nearest.elevation_low,
-            regions: nearest.regions
+            regions: nearest.regions,
+            map_unit: nearest.map_unit
         }), {
             status: 200,
             headers: {

@@ -29,8 +29,9 @@ export async function GET(req) {
                 range: columns[10], // Assuming column 28 is the range
                 countries: columns[43], // Assuming column 43 is the countries
                 regions: columns[48], // Assuming column 48 is regions
+                map_unit: columns[31], // Assuming column 32 is the type (Basic or Aggregated)
             };
-        }).filter(m => !isNaN(m.lat) && !isNaN(m.lon)); // Remove invalid data
+        }).filter(m => !isNaN(m.lat) && !isNaN(m.lon) && m.map_unit !== "Aggregated"); // Filter rows where type is not "Aggregated"
 
         // Find the nearest mountain with elevation above the minimum threshold
         let nearest = null;
@@ -72,6 +73,7 @@ export async function GET(req) {
             elevation_high: nearest.elevation_high,
             elevation_range: nearest.elevation_high - nearest.elevation_low,
             regions: nearest.regions,
+            map_unit: nearest.map_unit,
         }), {
             status: 200,
             headers: { "Content-Type": "application/json" },
