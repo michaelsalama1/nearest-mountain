@@ -7,6 +7,9 @@ export default function Home() {
     const [longitude, setLongitude] = useState(null);
     const [nearestMountain, setNearestMountain] = useState(null);
     const [elevation, setElevation] = useState(150); // Default elevation set to 500ft (~150m)
+    const [showCoordinateInput, setShowCoordinateInput] = useState(false); // State to toggle coordinate input visibility
+    const [newLatitude, setNewLatitude] = useState(""); // State for new latitude input
+    const [newLongitude, setNewLongitude] = useState(""); // State for new longitude input
 
     useEffect(() => {
         if ("geolocation" in navigator && latitude === null && longitude === null) {
@@ -18,24 +21,27 @@ export default function Home() {
     }, [latitude, longitude]); // Only trigger if latitude or longitude change
 
     useEffect(() => {
-        if (latitude && longitude) {
-            fetch(`/api/nearestMountain?lat=${latitude}&lon=${longitude}&minElevation=${elevation}`)
+        if ((latitude || newLatitude) && (longitude || newLongitude)) {
+            const lat = newLatitude || latitude;
+            const lon = newLongitude || longitude;
+            fetch(`/api/nearestMountain?lat=${lat}&lon=${lon}&minElevation=${elevation}`)
                 .then((res) => res.json())
                 .then((data) => setNearestMountain(data))
                 .catch((error) => console.error("Error fetching data:", error));
         }
-    }, [latitude, longitude, elevation]); // Trigger when latitude, longitude, or elevation changes
+    }, [latitude, longitude, elevation, newLatitude, newLongitude]); // Trigger when latitude, longitude, or elevation changes
 
     const handleElevationChange = (event) => {
         setElevation(event.target.value);
     };
 
-    const handleLatitudeChange = (event) => {
-        setLatitude(event.target.value);
-    };
-
-    const handleLongitudeChange = (event) => {
-        setLongitude(event.target.value);
+    const handleCoordinateSubmit = (event) => {
+        event.preventDefault();
+        // Set the coordinates from input
+        setLatitude(parseFloat(newLatitude));
+        setLongitude(parseFloat(newLongitude));
+        // Hide input fields after submission
+        setShowCoordinateInput(false);
     };
 
     return (
@@ -44,29 +50,51 @@ export default function Home() {
                 <h1>Find the Nearest Mountain &#127956;</h1>
                 {latitude && longitude ? (
                     <div className="location">
-                        <p>
-                            Your Location: 
-                            <input
-                                type="number"
-                                value={latitude || ''}
-                                onChange={handleLatitudeChange}
-                                step="any"
-                                placeholder="Enter latitude"
-                                className="coord"
-                            /> 
-                            , 
-                            <input
-                                type="number"
-                                value={longitude || ''}
-                                onChange={handleLongitudeChange}
-                                step="any"
-                                placeholder="Enter longitude"
-                                className="coord"
-                            />
+                        <p className="your-loc">
+                            Your Location: {latitude.toFixed(4)}, {longitude.toFixed(4)}
                         </p>
+                        {!showCoordinateInput && (
+                            <button
+                                onClick={() => setShowCoordinateInput(true)}
+                                className="change-coordinates-button"
+                            >
+                                Change Coordinates
+                            </button>
+                        )}
                     </div>
                 ) : (
                     <p>Fetching location...</p>
+                )}
+
+                {showCoordinateInput && (
+                    <form onSubmit={handleCoordinateSubmit} className="coordinate-input-form">
+                        <div className="coordinate-input-inline">
+                            <input
+                                type="number"
+                                id="latitude"
+                                value={newLatitude}
+                                onChange={(e) => setNewLatitude(e.target.value)}
+                                step="any"
+                                placeholder="Latitude"
+                                required
+                            />
+                            <input
+                                type="number"
+                                id="longitude"
+                                value={newLongitude}
+                                onChange={(e) => setNewLongitude(e.target.value)}
+                                step="any"
+                                placeholder="Longitude"
+                                required
+                            />
+                        
+                        </div>
+
+                        <button type="submit" className="submit-coordinates-button">
+                            Go &#x1f4cd;
+                        </button>
+                        
+                    </form>
                 )}
                 
                 <div className="elevation-control">
@@ -81,13 +109,13 @@ export default function Home() {
                         className="elevation-input"
                     />
                 </div>
-                
+
                 {nearestMountain ? (
                     <div className="mountain-info">
                         <p><strong>Nearest Mountain Range:<br></br>{nearestMountain.name}</strong></p>
                         <p>Location: {nearestMountain.latitude}, {nearestMountain.longitude}</p>
                         <p>Distance: {nearestMountain.distance_km} kilometers away</p>
-                        <p><strong>Elevation: </strong>{nearestMountain.elevation_low}m - {nearestMountain.elevation_high}m</p>
+                        <p><strong>Max Elevation: </strong>{nearestMountain.elevation_high}m</p>
                         <p>
                             <a
                                 href={`https://www.google.com/maps?q=${nearestMountain.latitude},${nearestMountain.longitude}`}
@@ -102,15 +130,13 @@ export default function Home() {
                 ) : (
                     <p>Loading nearest mountain...</p>
                 )}
-
-                
             </div>
+
             <div className="citation">
-                    <p>
+                <p>
                     Dataset:<br />Snethlage, M.A., Geschke, J., Spehn, E.M., Ranipeta, A., Yoccoz, N.G., Körner, Ch., Jetz, W., Fischer, M. & Urbach, D. GMBA Mountain Inventory v2. GMBA-EarthEnv. https://doi.org/10.48601/earthenv-t9k2-1407 (2022).
-                    </p>
-                </div>
+                </p>
+            </div>
         </div>
-        
     );
 }

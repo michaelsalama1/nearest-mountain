@@ -125,3 +125,48 @@ input.coord{
   width:60%;
   margin:auto;
 }
+
+/* Style for the Change Coordinates button */
+.change-coordinates-button {
+  background-color: #007bff00;
+  height:0px;
+  color: #28a746;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  margin-bottom: 30px;
+}
+
+p.your-loc{
+  margin-bottom:0px;
+}
+
+/* Style for the coordinate input form */
+
+.submit-coordinates-button {
+  background-color: #28a74600;
+  color: #28a746;
+  font-weight: bold;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 5px;
+  border: none;
+}
+
+.coordinate-input-inline {
+  display: flex;
+  gap: 10px; /* Space between the input fields */
+  justify-content: space-between;
+}
+
+.coordinate-input-inline input {
+  flex: 1;
+  font-size: 16px;
+  width: 10px;
+  height:30px;
+  margin-left: 5px;
+  border-radius: 4px;
+  padding:2px;
+  text-align:center;
+}
