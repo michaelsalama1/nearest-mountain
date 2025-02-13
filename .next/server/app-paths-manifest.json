@@ -1,5 +1,6 @@
 {
   "/random/page": "app/random/page.js",
   "/page": "app/page.js",
-  "/api/scrapePeakbagger/route": "app/api/scrapePeakbagger/route.js"
+  "/api/scrapePeakbagger/route": "app/api/scrapePeakbagger/route.js",
+  "/api/nearestMountain/route": "app/api/nearestMountain/route.js"
 }

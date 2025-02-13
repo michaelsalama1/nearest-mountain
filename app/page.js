@@ -12,6 +12,15 @@ export default function Home() {
     const [newLongitude, setNewLongitude] = useState(""); // State for new longitude input
     const [locationError, setLocationError] = useState(false); // State to track location errors
 
+    const generateRandomPeak = () => {
+        // Generate a random peak ID (1 to 192424)
+        const randomId = Math.floor(Math.random() * 192424) + 1;
+        // Create the URL for the random peak
+        const peakUrl = `https://www.peakbagger.com/peak.aspx?pid=${randomId}`;
+        // Open the random peak URL in a new tab
+        window.open(peakUrl, "_blank");
+    }
+
     useEffect(() => {
         if ("geolocation" in navigator) {
             navigator.geolocation.getCurrentPosition(
@@ -134,9 +143,12 @@ export default function Home() {
                                 rel="noopener noreferrer"
                                 className="google-map-link"
                             >
-                            &#9968; View on Google Maps &#9968;
+                            View on Google Maps
                             </a>
                         </p>
+                        <button onClick={generateRandomPeak} className="random-peak-button">
+                        &#9968; Random Peak &#9968;
+                        </button>
                     </div>
                 ) : (
                     <p>Loading nearest mountain...</p>
