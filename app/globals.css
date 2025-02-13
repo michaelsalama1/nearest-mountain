@@ -174,3 +174,18 @@ p.your-loc{
 .error-code{
   font-size:12px;
 }
+
+.random-peak-button {
+  background-color: #4CAF50; /* Green */
+  color: white;
+  padding: 15px 32px;
+  text-align: center;
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+}
+
+.random-peak-button:hover {
+  background-color: #45a049;
+}
