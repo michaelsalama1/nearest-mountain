@@ -10,15 +10,28 @@ export default function Home() {
     const [showCoordinateInput, setShowCoordinateInput] = useState(false); // State to toggle coordinate input visibility
     const [newLatitude, setNewLatitude] = useState(""); // State for new latitude input
     const [newLongitude, setNewLongitude] = useState(""); // State for new longitude input
+    const [locationError, setLocationError] = useState(false); // State to track location errors
 
     useEffect(() => {
-        if ("geolocation" in navigator && latitude === null && longitude === null) {
-            navigator.geolocation.getCurrentPosition((position) => {
-                setLatitude(position.coords.latitude);
-                setLongitude(position.coords.longitude);
-            });
+        if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    setLatitude(position.coords.latitude);
+                    setLongitude(position.coords.longitude);
+                    setLocationError(false); // Clear error if location is successfully retrieved
+                },
+                () => {
+                    // Geolocation unavailable, show manual input
+                    setLocationError(true);
+                    setShowCoordinateInput(true);
+                }
+            );
+        } else {
+            // Geolocation is not supported by the browser, show manual input
+            setLocationError(true);
+            setShowCoordinateInput(true);
         }
-    }, [latitude, longitude]); // Only trigger if latitude or longitude change
+    }, []); // Trigger once on mount
 
     useEffect(() => {
         if ((latitude || newLatitude) && (longitude || newLongitude)) {
@@ -63,7 +76,7 @@ export default function Home() {
                         )}
                     </div>
                 ) : (
-                    <p>Fetching location...</p>
+                    <p className="error-code">{locationError ? "location disabled" : "Fetching location..."}</p>
                 )}
 
                 {showCoordinateInput && (
@@ -87,16 +100,14 @@ export default function Home() {
                                 placeholder="Longitude"
                                 required
                             />
-                        
                         </div>
 
                         <button type="submit" className="submit-coordinates-button">
                             Go &#x1f4cd;
                         </button>
-                        
                     </form>
                 )}
-                
+
                 <div className="elevation-control">
                     <label htmlFor="elevation">Desired Elevation (meters): </label>
                     <input

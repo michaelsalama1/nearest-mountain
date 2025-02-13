@@ -23,21 +23,30 @@ function Home() {
     const [showCoordinateInput, setShowCoordinateInput] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false); // State to toggle coordinate input visibility
     const [newLatitude, setNewLatitude] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(""); // State for new latitude input
     const [newLongitude, setNewLongitude] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(""); // State for new longitude input
+    const [locationError, setLocationError] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false); // State to track location errors
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "Home.useEffect": ()=>{
-            if ("geolocation" in navigator && latitude === null && longitude === null) {
+            if ("geolocation" in navigator) {
                 navigator.geolocation.getCurrentPosition({
                     "Home.useEffect": (position)=>{
                         setLatitude(position.coords.latitude);
                         setLongitude(position.coords.longitude);
+                        setLocationError(false); // Clear error if location is successfully retrieved
+                    }
+                }["Home.useEffect"], {
+                    "Home.useEffect": ()=>{
+                        // Geolocation unavailable, show manual input
+                        setLocationError(true);
+                        setShowCoordinateInput(true);
                     }
                 }["Home.useEffect"]);
+            } else {
+                // Geolocation is not supported by the browser, show manual input
+                setLocationError(true);
+                setShowCoordinateInput(true);
             }
         }
-    }["Home.useEffect"], [
-        latitude,
-        longitude
-    ]); // Only trigger if latitude or longitude change
+    }["Home.useEffect"], []); // Trigger once on mount
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "Home.useEffect": ()=>{
             if ((latitude || newLatitude) && (longitude || newLongitude)) {
@@ -80,7 +89,7 @@ function Home() {
                         children: "Find the Nearest Mountain 🏔"
                     }, void 0, false, {
                         fileName: "[project]/app/page.js",
-                        lineNumber: 50,
+                        lineNumber: 63,
                         columnNumber: 17
                     }, this),
                     latitude && longitude ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -96,7 +105,7 @@ function Home() {
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/page.js",
-                                lineNumber: 53,
+                                lineNumber: 66,
                                 columnNumber: 25
                             }, this),
                             !showCoordinateInput && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -105,19 +114,20 @@ function Home() {
                                 children: "Change Coordinates"
                             }, void 0, false, {
                                 fileName: "[project]/app/page.js",
-                                lineNumber: 57,
+                                lineNumber: 70,
                                 columnNumber: 29
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/page.js",
-                        lineNumber: 52,
+                        lineNumber: 65,
                         columnNumber: 21
                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                        children: "Fetching location..."
+                        className: "error-code",
+                        children: locationError ? "location disabled" : "Fetching location..."
                     }, void 0, false, {
                         fileName: "[project]/app/page.js",
-                        lineNumber: 66,
+                        lineNumber: 79,
                         columnNumber: 21
                     }, this),
                     showCoordinateInput && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
@@ -137,7 +147,7 @@ function Home() {
                                         required: true
                                     }, void 0, false, {
                                         fileName: "[project]/app/page.js",
-                                        lineNumber: 72,
+                                        lineNumber: 85,
                                         columnNumber: 29
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -150,13 +160,13 @@ function Home() {
                                         required: true
                                     }, void 0, false, {
                                         fileName: "[project]/app/page.js",
-                                        lineNumber: 81,
+                                        lineNumber: 94,
                                         columnNumber: 29
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/page.js",
-                                lineNumber: 71,
+                                lineNumber: 84,
                                 columnNumber: 25
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -165,13 +175,13 @@ function Home() {
                                 children: "Go 📍"
                             }, void 0, false, {
                                 fileName: "[project]/app/page.js",
-                                lineNumber: 93,
+                                lineNumber: 105,
                                 columnNumber: 25
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/page.js",
-                        lineNumber: 70,
+                        lineNumber: 83,
                         columnNumber: 21
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -182,7 +192,7 @@ function Home() {
                                 children: "Desired Elevation (meters): "
                             }, void 0, false, {
                                 fileName: "[project]/app/page.js",
-                                lineNumber: 101,
+                                lineNumber: 112,
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -195,13 +205,13 @@ function Home() {
                                 className: "elevation-input"
                             }, void 0, false, {
                                 fileName: "[project]/app/page.js",
-                                lineNumber: 102,
+                                lineNumber: 113,
                                 columnNumber: 21
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/page.js",
-                        lineNumber: 100,
+                        lineNumber: 111,
                         columnNumber: 17
                     }, this),
                     nearestMountain ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -213,19 +223,19 @@ function Home() {
                                         "Nearest Mountain Range:",
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("br", {}, void 0, false, {
                                             fileName: "[project]/app/page.js",
-                                            lineNumber: 115,
+                                            lineNumber: 126,
                                             columnNumber: 59
                                         }, this),
                                         nearestMountain.name
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/page.js",
-                                    lineNumber: 115,
+                                    lineNumber: 126,
                                     columnNumber: 28
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/page.js",
-                                lineNumber: 115,
+                                lineNumber: 126,
                                 columnNumber: 25
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -237,7 +247,7 @@ function Home() {
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/page.js",
-                                lineNumber: 116,
+                                lineNumber: 127,
                                 columnNumber: 25
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -248,7 +258,7 @@ function Home() {
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/page.js",
-                                lineNumber: 117,
+                                lineNumber: 128,
                                 columnNumber: 25
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -257,7 +267,7 @@ function Home() {
                                         children: "Max Elevation: "
                                     }, void 0, false, {
                                         fileName: "[project]/app/page.js",
-                                        lineNumber: 118,
+                                        lineNumber: 129,
                                         columnNumber: 28
                                     }, this),
                                     nearestMountain.elevation_high,
@@ -265,7 +275,7 @@ function Home() {
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/page.js",
-                                lineNumber: 118,
+                                lineNumber: 129,
                                 columnNumber: 25
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -277,30 +287,30 @@ function Home() {
                                     children: "⛰ View on Google Maps ⛰"
                                 }, void 0, false, {
                                     fileName: "[project]/app/page.js",
-                                    lineNumber: 120,
+                                    lineNumber: 131,
                                     columnNumber: 29
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/page.js",
-                                lineNumber: 119,
+                                lineNumber: 130,
                                 columnNumber: 25
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/page.js",
-                        lineNumber: 114,
+                        lineNumber: 125,
                         columnNumber: 21
                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                         children: "Loading nearest mountain..."
                     }, void 0, false, {
                         fileName: "[project]/app/page.js",
-                        lineNumber: 131,
+                        lineNumber: 142,
                         columnNumber: 21
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/page.js",
-                lineNumber: 49,
+                lineNumber: 62,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -310,29 +320,29 @@ function Home() {
                         "Dataset:",
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("br", {}, void 0, false, {
                             fileName: "[project]/app/page.js",
-                            lineNumber: 137,
+                            lineNumber: 148,
                             columnNumber: 29
                         }, this),
                         "Snethlage, M.A., Geschke, J., Spehn, E.M., Ranipeta, A., Yoccoz, N.G., Körner, Ch., Jetz, W., Fischer, M. & Urbach, D. GMBA Mountain Inventory v2. GMBA-EarthEnv. https://doi.org/10.48601/earthenv-t9k2-1407 (2022)."
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/page.js",
-                    lineNumber: 136,
+                    lineNumber: 147,
                     columnNumber: 17
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/page.js",
-                lineNumber: 135,
+                lineNumber: 146,
                 columnNumber: 13
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/page.js",
-        lineNumber: 48,
+        lineNumber: 61,
         columnNumber: 9
     }, this);
 }
-_s(Home, "iMJL6dv2jDGJ6v87sQtsIXJGZfY=");
+_s(Home, "z9KVkx64d70Up1MtRbagIZxHHTQ=");
 _c = Home;
 var _c;
 __turbopack_refresh__.register(_c, "Home");

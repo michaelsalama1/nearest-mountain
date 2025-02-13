@@ -170,3 +170,7 @@ p.your-loc{
   padding:2px;
   text-align:center;
 }
+
+.error-code{
+  font-size:12px;
+}
