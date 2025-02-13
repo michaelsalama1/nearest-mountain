@@ -6,7 +6,7 @@ export default function Home() {
     const [latitude, setLatitude] = useState(null);
     const [longitude, setLongitude] = useState(null);
     const [nearestMountain, setNearestMountain] = useState(null);
-    const [elevation, setElevation] = useState(150); // Default elevation set to 500ft (~150m)
+    const [elevation, setElevation] = useState(500); // Default elevation set to 500ft (~150m)
     const [showCoordinateInput, setShowCoordinateInput] = useState(false); // State to toggle coordinate input visibility
     const [newLatitude, setNewLatitude] = useState(""); // State for new latitude input
     const [newLongitude, setNewLongitude] = useState(""); // State for new longitude input
