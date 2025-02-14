@@ -13,22 +13,11 @@ export default function Home() {
     const [locationError, setLocationError] = useState(false);
     const [showAbout, setShowAbout] = useState(false); // State to toggle About section
 
-    const generateRandomPeak = () => {
-        const generateRandomId = () => {
-            let randomId = Math.floor(Math.random() * (192424 - (91997 - 79487 + 1))) + 1;
-            
-            // Adjust if the random ID falls in the excluded range
-            if (randomId >= 79487) {
-                randomId += (91997 - 79487 + 1);
-            }
-        
-            return randomId;
-        };
-        
-        const randomId = generateRandomId();
-        
-        const peakUrl = `https://www.peakbagger.com/peak.aspx?pid=${randomId}`;
-        window.open(peakUrl, "_blank");
+    const generateRandomRange = () => {
+        fetch(`/api/randomRange?lat=${latitude}&lon=${longitude}&minElevation=${elevation}`)
+            .then((res) => res.json())
+            .then((data) => setNearestMountain(data))
+            .catch((error) => console.error("Error fetching data:", error));
     };
 
     useEffect(() => {
@@ -70,6 +59,18 @@ export default function Home() {
         setLatitude(parseFloat(newLatitude));
         setLongitude(parseFloat(newLongitude));
         setShowCoordinateInput(false);
+    };
+
+    // Haversine function to calculate distance between two lat-lon points
+    const haversine = (lat1, lon1, lat2, lon2) => {
+        const R = 6371; // Radius of Earth in km
+        const toRad = (deg) => (deg * Math.PI) / 180;
+        const dLat = toRad(lat2 - lat1);
+        const dLon = toRad(lon2 - lon1);
+        const a =
+            Math.sin(dLat / 2) ** 2 +
+            Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     };
 
     return (
@@ -137,9 +138,9 @@ export default function Home() {
 
                 {nearestMountain ? (
                     <div className="mountain-info">
-                        <p><strong>Nearest Mountain Range:<br />{nearestMountain.name}</strong></p>
+                        <p><strong>Nearest Mountain Range:<br /><span className="targetRange">{nearestMountain.name}</span></strong><br />{nearestMountain.region}</p>
                         <p>Location: {nearestMountain.latitude}, {nearestMountain.longitude}</p>
-                        <p>Distance: {nearestMountain.distance_km} kilometers away</p>
+                        <p>Distance: {haversine(latitude, longitude, nearestMountain.latitude, nearestMountain.longitude).toFixed(2)} kilometers away</p>
                         <p><strong>Max Elevation: </strong>{nearestMountain.elevation_high}m</p>
                         <p>
                             <a
@@ -151,8 +152,8 @@ export default function Home() {
                                 View on Google Maps
                             </a>
                         </p>
-                        <button onClick={generateRandomPeak} className="random-peak-button">
-                            &#9968; Random Peak &#9968;
+                        <button onClick={generateRandomRange} className="random-peak-button">
+                            &#9968; Random Mountain Range &#9968;
                         </button>
                     </div>
                 ) : (
@@ -169,20 +170,20 @@ export default function Home() {
             {showAbout && (
                 <div className="about-overlay">
                     <button className="close-about" onClick={() => setShowAbout(false)}>
-                            ✖ Close
-                        </button>
+                        ✖ Close
+                    </button>
                     <div className="about-container">
                         <p>
-                            Welcome to <code>nearestmountain.com</code>. This is a simple calculator that determines the closest mountain range to your current location. It uses the GMBA Mountain Inventory database, cited below, and therefore output coordinates currently link to the geographic center of the nearest range, not mountain peaks themselves. 
+                            Welcome to <code>nearestmountain.com</code>, a webapp for people who are allergic to sea level. It is a simple calculator that determines the closest mountain range to your current location. It uses the GMBA Mountain Inventory database, cited below, and therefore output coordinates currently link to the geographic center of the nearest range, not mountain peaks themselves.
                         </p>
                         <p>
-                        The random peak generator just links to a random listing on <code>peakbagger.com</code>.
+                            The random range generator outputs a random mountain range from the GMBA database based on your selected elevation criteria.
                         </p>
                         <p>
                             Background: Nevado Sajama, Bolivia.
                         </p>
                         <p>
-                            If you would like to fork this project, you can reach me at <code>me@michaelsalama.com</code>
+                            I can be reached at <code>me@michaelsalama.com</code>
                         </p>
                         <p className="citation">
                             Dataset: Snethlage, M.A., Geschke, J., Spehn, E.M., Ranipeta, A., Yoccoz, N.G., Körner, Ch., Jetz, W., Fischer, M. & Urbach, D. GMBA Mountain Inventory v2. GMBA-EarthEnv. https://doi.org/10.48601/earthenv-t9k2-1407 (2022).

@@ -1,4 +1,5 @@
 {
   "/page": "app/page.js",
-  "/api/nearestMountain/route": "app/api/nearestMountain/route.js"
+  "/api/nearestMountain/route": "app/api/nearestMountain/route.js",
+  "/api/randomRange/route": "app/api/randomRange/route.js"
 }

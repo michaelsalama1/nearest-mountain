@@ -96,7 +96,7 @@ async function GET(req) {
                 elevation_high: parseInt(columns[37]),
                 range: columns[10],
                 countries: columns[43],
-                regions: columns[48],
+                region: columns[8],
                 map_unit: columns[31]
             };
         }).filter((m)=>!isNaN(m.lat) && !isNaN(m.lon) && m.map_unit !== "Aggregated"); // Filter rows where type is not "Aggregated"
@@ -138,7 +138,7 @@ async function GET(req) {
             elevation_low: nearest.elevation_low,
             elevation_high: nearest.elevation_high,
             elevation_range: nearest.elevation_high - nearest.elevation_low,
-            regions: nearest.regions,
+            region: nearest.region,
             map_unit: nearest.map_unit
         }), {
             status: 200,

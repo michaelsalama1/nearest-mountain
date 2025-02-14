@@ -234,3 +234,7 @@ p.citation{
 .close-about:hover {
   background: darkred;
 }
+
+.targetRange {
+  font-size:24px;
+}
