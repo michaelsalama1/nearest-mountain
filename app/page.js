@@ -14,7 +14,19 @@ export default function Home() {
     const [showAbout, setShowAbout] = useState(false); // State to toggle About section
 
     const generateRandomPeak = () => {
-        const randomId = Math.floor(Math.random() * 192424) + 1;
+        const generateRandomId = () => {
+            let randomId = Math.floor(Math.random() * (192424 - (91997 - 79487 + 1))) + 1;
+            
+            // Adjust if the random ID falls in the excluded range
+            if (randomId >= 79487) {
+                randomId += (91997 - 79487 + 1);
+            }
+        
+            return randomId;
+        };
+        
+        const randomId = generateRandomId();
+        
         const peakUrl = `https://www.peakbagger.com/peak.aspx?pid=${randomId}`;
         window.open(peakUrl, "_blank");
     };
