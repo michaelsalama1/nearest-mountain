@@ -345,6 +345,13 @@ body {
   margin: 0;
   background-image: url("../media/sajama.7eb85afb.JPG");
   background-size: cover;
+  transition: all 1s;
+}
+
+@media screen and (width <= 768px) and (orientation: portrait) {
+  body {
+    background-image: url("../media/garnet.79c65408.png");
+  }
 }
 
 .app-container {

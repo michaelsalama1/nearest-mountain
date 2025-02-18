@@ -8,10 +8,10 @@ export default function Home() {
     const [nearestMountain, setNearestMountain] = useState(null);
     const [elevation, setElevation] = useState(500);
     const [showCoordinateInput, setShowCoordinateInput] = useState(false);
-    const [newLatitude, setNewLatitude] = useState("");
-    const [newLongitude, setNewLongitude] = useState("");
+    const [newLatitude, setNewLatitude] = useState(latitude || "");
+    const [newLongitude, setNewLongitude] = useState(longitude || "");
     const [locationError, setLocationError] = useState(false);
-    const [showAbout, setShowAbout] = useState(false); // State to toggle About section
+    const [showAbout, setShowAbout] = useState(false);
 
     const generateRandomRange = () => {
         fetch(`/api/randomRange?lat=${latitude}&lon=${longitude}&minElevation=${elevation}`)
@@ -22,13 +22,20 @@ export default function Home() {
 
     useEffect(() => {
         if ("geolocation" in navigator) {
+            const geoTimeout = setTimeout(() => {
+                setLocationError(true);
+                setShowCoordinateInput(true);
+            }, 10000);
+
             navigator.geolocation.getCurrentPosition(
                 (position) => {
+                    clearTimeout(geoTimeout);
                     setLatitude(position.coords.latitude);
                     setLongitude(position.coords.longitude);
                     setLocationError(false);
                 },
                 () => {
+                    clearTimeout(geoTimeout);
                     setLocationError(true);
                     setShowCoordinateInput(true);
                 }
@@ -61,9 +68,8 @@ export default function Home() {
         setShowCoordinateInput(false);
     };
 
-    // Haversine function to calculate distance between two lat-lon points
     const haversine = (lat1, lon1, lat2, lon2) => {
-        const R = 6371; // Radius of Earth in km
+        const R = 6371;
         const toRad = (deg) => (deg * Math.PI) / 180;
         const dLat = toRad(lat2 - lat1);
         const dLon = toRad(lon2 - lon1);
@@ -104,7 +110,7 @@ export default function Home() {
                                 value={newLatitude}
                                 onChange={(e) => setNewLatitude(e.target.value)}
                                 step="any"
-                                placeholder="Latitude"
+                                placeholder="latitude"
                                 required
                             />
                             <input
@@ -113,7 +119,7 @@ export default function Home() {
                                 value={newLongitude}
                                 onChange={(e) => setNewLongitude(e.target.value)}
                                 step="any"
-                                placeholder="Longitude"
+                                placeholder="longitude"
                                 required
                             />
                         </div>
@@ -160,37 +166,37 @@ export default function Home() {
                     <p>Loading nearest mountain...</p>
                 )}
             </div>
-
             <div className="about">
-                <button onClick={() => setShowAbout(true)}>
-                    about
-                </button>
-            </div>
+    <button onClick={() => setShowAbout(true)}>
+        about
+    </button>
+</div>
 
-            {showAbout && (
-                <div className="about-overlay">
-                    <button className="close-about" onClick={() => setShowAbout(false)}>
-                        ✖ Close
-                    </button>
-                    <div className="about-container">
-                        <p>
-                            Welcome to <code>nearestmountain.com</code>, a webapp for people who are allergic to sea level. It is a simple calculator that determines the closest mountain range to your current location. It uses the GMBA Mountain Inventory database, cited below, and therefore output coordinates currently link to the geographic center of the nearest range, not mountain peaks themselves.
-                        </p>
-                        <p>
-                            The random range generator outputs a random mountain range from the GMBA database based on your selected elevation criteria.
-                        </p>
-                        <p>
-                            Background: Nevado Sajama, Bolivia.
-                        </p>
-                        <p>
-                            I can be reached at <code>me@michaelsalama.com</code>
-                        </p>
-                        <p className="citation">
-                            Dataset: Snethlage, M.A., Geschke, J., Spehn, E.M., Ranipeta, A., Yoccoz, N.G., Körner, Ch., Jetz, W., Fischer, M. & Urbach, D. GMBA Mountain Inventory v2. GMBA-EarthEnv. https://doi.org/10.48601/earthenv-t9k2-1407 (2022).
-                        </p>
-                    </div>
-                </div>
-            )}
+{showAbout && (
+    <div className="about-overlay">
+        <button className="close-about" onClick={() => setShowAbout(false)}>
+            ✖ Close
+        </button>
+        <div className="about-container">
+            <p>
+                Welcome to <code>nearestmountain.com</code>, a webapp for people who are allergic to sea level. It is a simple calculator that determines the closest mountain range to your current location. It uses the GMBA Mountain Inventory database, cited below, and therefore output coordinates currently link to the geographic center of the nearest range, not mountain peaks themselves.
+            </p>
+            <p>
+                The random range generator outputs a random mountain range from the GMBA database based on your selected elevation criteria.
+            </p>
+            <p>
+                Backgrounds: Nevado Sajama, Oruro, Bolivia & Garnet Peak, California, USA.
+            </p>
+            <p>
+                I can be reached at <code>me@michaelsalama.com</code>
+            </p>
+            <p className="citation">
+                Dataset: Snethlage, M.A., Geschke, J., Spehn, E.M., Ranipeta, A., Yoccoz, N.G., Körner, Ch., Jetz, W., Fischer, M. & Urbach, D. GMBA Mountain Inventory v2. GMBA-EarthEnv. https://doi.org/10.48601/earthenv-t9k2-1407 (2022).
+            </p>
+        </div>
+    </div>
+)}
+
         </div>
     );
 }
