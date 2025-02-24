@@ -16,15 +16,16 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist
 function Home() {
     const [latitude, setLatitude] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(null);
     const [longitude, setLongitude] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(null);
-    const [nearestMountain, setNearestMountain] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(null);
+    const [nearestMountains, setNearestMountains] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(null);
     const [elevation, setElevation] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(500);
     const [showCoordinateInput, setShowCoordinateInput] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
     const [newLatitude, setNewLatitude] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(latitude || "");
     const [newLongitude, setNewLongitude] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(longitude || "");
     const [locationError, setLocationError] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
     const [showAbout, setShowAbout] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
+    const [currentMountainIndex, setCurrentMountainIndex] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(0);
     const generateRandomRange = ()=>{
-        fetch(`/api/randomRange?lat=${latitude}&lon=${longitude}&minElevation=${elevation}`).then((res)=>res.json()).then((data)=>setNearestMountain(data)).catch((error)=>console.error("Error fetching data:", error));
+        fetch(`/api/randomRange?lat=${latitude}&lon=${longitude}&minElevation=${elevation}`).then((res)=>res.json()).then((data)=>setNearestMountains(data)).catch((error)=>console.error("Error fetching data:", error));
     };
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
         if ("geolocation" in navigator) {
@@ -51,7 +52,10 @@ function Home() {
         if ((latitude || newLatitude) && (longitude || newLongitude)) {
             const lat = newLatitude || latitude;
             const lon = newLongitude || longitude;
-            fetch(`/api/nearestMountain?lat=${lat}&lon=${lon}&minElevation=${elevation}`).then((res)=>res.json()).then((data)=>setNearestMountain(data)).catch((error)=>console.error("Error fetching data:", error));
+            fetch(`/api/nearestMountain?lat=${lat}&lon=${lon}&minElevation=${elevation}`).then((res)=>res.json()).then((data)=>{
+                setNearestMountains(data);
+                setCurrentMountainIndex(0); // Reset slider position
+            }).catch((error)=>console.error("Error fetching data:", error));
         }
     }, [
         latitude,
@@ -68,6 +72,12 @@ function Home() {
         setLatitude(parseFloat(newLatitude));
         setLongitude(parseFloat(newLongitude));
         setShowCoordinateInput(false);
+    };
+    const handleNext = ()=>{
+        setCurrentMountainIndex((prevIndex)=>prevIndex < nearestMountains.length - 1 ? prevIndex + 1 : 0);
+    };
+    const handlePrevious = ()=>{
+        setCurrentMountainIndex((prevIndex)=>prevIndex > 0 ? prevIndex - 1 : nearestMountains.length - 1);
     };
     const haversine = (lat1, lon1, lat2, lon2)=>{
         const R = 6371;
@@ -87,7 +97,7 @@ function Home() {
                         children: "Find the Nearest Mountain 🏔"
                     }, void 0, false, {
                         fileName: "[project]/app/page.js",
-                        lineNumber: 85,
+                        lineNumber: 104,
                         columnNumber: 17
                     }, this),
                     latitude && longitude ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -103,7 +113,7 @@ function Home() {
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/page.js",
-                                lineNumber: 88,
+                                lineNumber: 107,
                                 columnNumber: 25
                             }, this),
                             !showCoordinateInput && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -112,20 +122,20 @@ function Home() {
                                 children: "Change Coordinates"
                             }, void 0, false, {
                                 fileName: "[project]/app/page.js",
-                                lineNumber: 92,
+                                lineNumber: 111,
                                 columnNumber: 29
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/page.js",
-                        lineNumber: 87,
+                        lineNumber: 106,
                         columnNumber: 21
                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                         className: "error-code",
                         children: locationError ? "Location disabled" : "Fetching location..."
                     }, void 0, false, {
                         fileName: "[project]/app/page.js",
-                        lineNumber: 101,
+                        lineNumber: 120,
                         columnNumber: 21
                     }, this),
                     showCoordinateInput && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
@@ -145,7 +155,7 @@ function Home() {
                                         required: true
                                     }, void 0, false, {
                                         fileName: "[project]/app/page.js",
-                                        lineNumber: 107,
+                                        lineNumber: 126,
                                         columnNumber: 29
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -158,13 +168,13 @@ function Home() {
                                         required: true
                                     }, void 0, false, {
                                         fileName: "[project]/app/page.js",
-                                        lineNumber: 116,
+                                        lineNumber: 135,
                                         columnNumber: 29
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/page.js",
-                                lineNumber: 106,
+                                lineNumber: 125,
                                 columnNumber: 25
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -173,13 +183,13 @@ function Home() {
                                 children: "Go 📍"
                             }, void 0, false, {
                                 fileName: "[project]/app/page.js",
-                                lineNumber: 126,
+                                lineNumber: 145,
                                 columnNumber: 25
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/page.js",
-                        lineNumber: 105,
+                        lineNumber: 124,
                         columnNumber: 21
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -190,7 +200,7 @@ function Home() {
                                 children: "Desired Elevation (meters): "
                             }, void 0, false, {
                                 fileName: "[project]/app/page.js",
-                                lineNumber: 133,
+                                lineNumber: 152,
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -203,16 +213,16 @@ function Home() {
                                 className: "elevation-input"
                             }, void 0, false, {
                                 fileName: "[project]/app/page.js",
-                                lineNumber: 134,
+                                lineNumber: 153,
                                 columnNumber: 21
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/page.js",
-                        lineNumber: 132,
+                        lineNumber: 151,
                         columnNumber: 17
                     }, this),
-                    nearestMountain ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    nearestMountains ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "mountain-info",
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -222,56 +232,56 @@ function Home() {
                                             "Nearest Mountain Range:",
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("br", {}, void 0, false, {
                                                 fileName: "[project]/app/page.js",
-                                                lineNumber: 147,
+                                                lineNumber: 166,
                                                 columnNumber: 59
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                 className: "targetRange",
-                                                children: nearestMountain.name
+                                                children: nearestMountains[currentMountainIndex].name
                                             }, void 0, false, {
                                                 fileName: "[project]/app/page.js",
-                                                lineNumber: 147,
+                                                lineNumber: 166,
                                                 columnNumber: 65
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/page.js",
-                                        lineNumber: 147,
+                                        lineNumber: 166,
                                         columnNumber: 28
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("br", {}, void 0, false, {
                                         fileName: "[project]/app/page.js",
-                                        lineNumber: 147,
-                                        columnNumber: 133
+                                        lineNumber: 166,
+                                        columnNumber: 156
                                     }, this),
-                                    nearestMountain.region
+                                    nearestMountains[currentMountainIndex].region
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/page.js",
-                                lineNumber: 147,
+                                lineNumber: 166,
                                 columnNumber: 25
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                 children: [
                                     "Location: ",
-                                    nearestMountain.latitude,
+                                    nearestMountains[currentMountainIndex].lat,
                                     ", ",
-                                    nearestMountain.longitude
+                                    nearestMountains[currentMountainIndex].lon
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/page.js",
-                                lineNumber: 148,
+                                lineNumber: 167,
                                 columnNumber: 25
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                 children: [
                                     "Distance: ",
-                                    haversine(latitude, longitude, nearestMountain.latitude, nearestMountain.longitude).toFixed(2),
+                                    haversine(latitude, longitude, nearestMountains[currentMountainIndex].lat, nearestMountains[currentMountainIndex].lon).toFixed(2),
                                     " kilometers away"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/page.js",
-                                lineNumber: 149,
+                                lineNumber: 168,
                                 columnNumber: 25
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -280,32 +290,73 @@ function Home() {
                                         children: "Max Elevation: "
                                     }, void 0, false, {
                                         fileName: "[project]/app/page.js",
-                                        lineNumber: 150,
+                                        lineNumber: 169,
                                         columnNumber: 28
                                     }, this),
-                                    nearestMountain.elevation_high,
+                                    nearestMountains[currentMountainIndex].elevation_high,
                                     "m"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/page.js",
-                                lineNumber: 150,
+                                lineNumber: 169,
+                                columnNumber: 25
+                            }, this),
+                            nearestMountains.length > 1 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "slider-controls",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                        onClick: handlePrevious,
+                                        className: "prev-button",
+                                        children: "❮"
+                                    }, void 0, false, {
+                                        fileName: "[project]/app/page.js",
+                                        lineNumber: 173,
+                                        columnNumber: 29
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                        className: "slider-index",
+                                        children: [
+                                            "  ",
+                                            currentMountainIndex + 1,
+                                            " / ",
+                                            nearestMountains.length,
+                                            "  "
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "[project]/app/page.js",
+                                        lineNumber: 174,
+                                        columnNumber: 29
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                        onClick: handleNext,
+                                        className: "next-button",
+                                        children: "❯"
+                                    }, void 0, false, {
+                                        fileName: "[project]/app/page.js",
+                                        lineNumber: 175,
+                                        columnNumber: 29
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/app/page.js",
+                                lineNumber: 172,
                                 columnNumber: 25
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
-                                    href: `https://www.google.com/maps?q=${nearestMountain.latitude},${nearestMountain.longitude}`,
+                                    href: `https://www.google.com/maps?q=${nearestMountains[currentMountainIndex].lat},${nearestMountains[currentMountainIndex].lon}`,
                                     target: "_blank",
                                     rel: "noopener noreferrer",
                                     className: "google-map-link",
                                     children: "View on Google Maps"
                                 }, void 0, false, {
                                     fileName: "[project]/app/page.js",
-                                    lineNumber: 152,
+                                    lineNumber: 180,
                                     columnNumber: 29
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/page.js",
-                                lineNumber: 151,
+                                lineNumber: 179,
                                 columnNumber: 25
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -314,25 +365,25 @@ function Home() {
                                 children: "⛰ Random Mountain Range ⛰"
                             }, void 0, false, {
                                 fileName: "[project]/app/page.js",
-                                lineNumber: 161,
+                                lineNumber: 192,
                                 columnNumber: 25
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/page.js",
-                        lineNumber: 146,
+                        lineNumber: 165,
                         columnNumber: 21
                     }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                         children: "Loading nearest mountain..."
                     }, void 0, false, {
                         fileName: "[project]/app/page.js",
-                        lineNumber: 166,
+                        lineNumber: 197,
                         columnNumber: 21
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/page.js",
-                lineNumber: 84,
+                lineNumber: 103,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -342,12 +393,12 @@ function Home() {
                     children: "about"
                 }, void 0, false, {
                     fileName: "[project]/app/page.js",
-                    lineNumber: 170,
+                    lineNumber: 201,
                     columnNumber: 5
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/page.js",
-                lineNumber: 169,
+                lineNumber: 200,
                 columnNumber: 13
             }, this),
             showAbout && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -359,7 +410,7 @@ function Home() {
                         children: "✖ Close"
                     }, void 0, false, {
                         fileName: "[project]/app/page.js",
-                        lineNumber: 177,
+                        lineNumber: 208,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -372,28 +423,28 @@ function Home() {
                                         children: "nearestmountain.com"
                                     }, void 0, false, {
                                         fileName: "[project]/app/page.js",
-                                        lineNumber: 182,
+                                        lineNumber: 213,
                                         columnNumber: 28
                                     }, this),
                                     ", a webapp for people who are allergic to sea level. It is a simple calculator that determines the closest mountain range to your current location. It uses the GMBA Mountain Inventory database, cited below, and therefore output coordinates currently link to the geographic center of the nearest range, not mountain peaks themselves."
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/page.js",
-                                lineNumber: 181,
+                                lineNumber: 212,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                 children: "The random range generator outputs a random mountain range from the GMBA database based on your selected elevation criteria."
                             }, void 0, false, {
                                 fileName: "[project]/app/page.js",
-                                lineNumber: 184,
+                                lineNumber: 215,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                 children: "Backgrounds: Nevado Sajama, Oruro, Bolivia & Garnet Peak, California, USA."
                             }, void 0, false, {
                                 fileName: "[project]/app/page.js",
-                                lineNumber: 187,
+                                lineNumber: 218,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -403,13 +454,13 @@ function Home() {
                                         children: "me@michaelsalama.com"
                                     }, void 0, false, {
                                         fileName: "[project]/app/page.js",
-                                        lineNumber: 191,
+                                        lineNumber: 222,
                                         columnNumber: 37
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/page.js",
-                                lineNumber: 190,
+                                lineNumber: 221,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -417,25 +468,25 @@ function Home() {
                                 children: "Dataset: Snethlage, M.A., Geschke, J., Spehn, E.M., Ranipeta, A., Yoccoz, N.G., Körner, Ch., Jetz, W., Fischer, M. & Urbach, D. GMBA Mountain Inventory v2. GMBA-EarthEnv. https://doi.org/10.48601/earthenv-t9k2-1407 (2022)."
                             }, void 0, false, {
                                 fileName: "[project]/app/page.js",
-                                lineNumber: 193,
+                                lineNumber: 224,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/page.js",
-                        lineNumber: 180,
+                        lineNumber: 211,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/page.js",
-                lineNumber: 176,
+                lineNumber: 207,
                 columnNumber: 5
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/page.js",
-        lineNumber: 83,
+        lineNumber: 102,
         columnNumber: 9
     }, this);
 }

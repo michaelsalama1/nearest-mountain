@@ -5,18 +5,20 @@ import { useState, useEffect } from "react";
 export default function Home() {
     const [latitude, setLatitude] = useState(null);
     const [longitude, setLongitude] = useState(null);
-    const [nearestMountain, setNearestMountain] = useState(null);
+    const [nearestMountains, setNearestMountains] = useState(null);
     const [elevation, setElevation] = useState(500);
     const [showCoordinateInput, setShowCoordinateInput] = useState(false);
     const [newLatitude, setNewLatitude] = useState(latitude || "");
     const [newLongitude, setNewLongitude] = useState(longitude || "");
     const [locationError, setLocationError] = useState(false);
     const [showAbout, setShowAbout] = useState(false);
+    const [currentMountainIndex, setCurrentMountainIndex] = useState(0);
+
 
     const generateRandomRange = () => {
         fetch(`/api/randomRange?lat=${latitude}&lon=${longitude}&minElevation=${elevation}`)
             .then((res) => res.json())
-            .then((data) => setNearestMountain(data))
+            .then((data) => setNearestMountains(data))
             .catch((error) => console.error("Error fetching data:", error));
     };
 
@@ -52,10 +54,15 @@ export default function Home() {
             const lon = newLongitude || longitude;
             fetch(`/api/nearestMountain?lat=${lat}&lon=${lon}&minElevation=${elevation}`)
                 .then((res) => res.json())
-                .then((data) => setNearestMountain(data))
+                .then((data) => {
+                    setNearestMountains(data);
+                    setCurrentMountainIndex(0); // Reset slider position
+                })
                 .catch((error) => console.error("Error fetching data:", error));
         }
     }, [latitude, longitude, elevation, newLatitude, newLongitude]);
+
+    
 
     const handleElevationChange = (event) => {
         setElevation(event.target.value);
@@ -66,6 +73,18 @@ export default function Home() {
         setLatitude(parseFloat(newLatitude));
         setLongitude(parseFloat(newLongitude));
         setShowCoordinateInput(false);
+    };
+
+    const handleNext = () => {
+        setCurrentMountainIndex((prevIndex) =>
+            prevIndex < nearestMountains.length - 1 ? prevIndex + 1 : 0
+        );
+    };
+
+    const handlePrevious = () => {
+        setCurrentMountainIndex((prevIndex) =>
+            prevIndex > 0 ? prevIndex - 1 : nearestMountains.length - 1
+        );
     };
 
     const haversine = (lat1, lon1, lat2, lon2) => {
@@ -142,15 +161,24 @@ export default function Home() {
                     />
                 </div>
 
-                {nearestMountain ? (
+                {nearestMountains ? (
                     <div className="mountain-info">
-                        <p><strong>Nearest Mountain Range:<br /><span className="targetRange">{nearestMountain.name}</span></strong><br />{nearestMountain.region}</p>
-                        <p>Location: {nearestMountain.latitude}, {nearestMountain.longitude}</p>
-                        <p>Distance: {haversine(latitude, longitude, nearestMountain.latitude, nearestMountain.longitude).toFixed(2)} kilometers away</p>
-                        <p><strong>Max Elevation: </strong>{nearestMountain.elevation_high}m</p>
+                        <p><strong>Nearest Mountain Range:<br /><span className="targetRange">{nearestMountains[currentMountainIndex].name}</span></strong><br />{nearestMountains[currentMountainIndex].region}</p>
+                        <p>Location: {nearestMountains[currentMountainIndex].lat}, {nearestMountains[currentMountainIndex].lon}</p>
+                        <p>Distance: {haversine(latitude, longitude, nearestMountains[currentMountainIndex].lat, nearestMountains[currentMountainIndex].lon).toFixed(2)} kilometers away</p>
+                        <p><strong>Max Elevation: </strong>{nearestMountains[currentMountainIndex].elevation_high}m</p>
+                        
+                        {nearestMountains.length > 1 && 
+                        <div className="slider-controls">
+                            <button onClick={handlePrevious} className="prev-button">❮</button>
+                            <span className="slider-index">  {currentMountainIndex + 1} / {nearestMountains.length}  </span>
+                            <button onClick={handleNext} className="next-button">❯</button>
+                        </div>
+                        }
+                        
                         <p>
                             <a
-                                href={`https://www.google.com/maps?q=${nearestMountain.latitude},${nearestMountain.longitude}`}
+                                href={`https://www.google.com/maps?q=${nearestMountains[currentMountainIndex].lat},${nearestMountains[currentMountainIndex].lon}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="google-map-link"
@@ -158,6 +186,9 @@ export default function Home() {
                                 View on Google Maps
                             </a>
                         </p>
+
+                        
+
                         <button onClick={generateRandomRange} className="random-peak-button">
                             &#9968; Random Mountain Range &#9968;
                         </button>
@@ -179,19 +210,19 @@ export default function Home() {
         </button>
         <div className="about-container">
             <p>
-                Welcome to <code>nearestmountain.com</code>, a webapp for people who are allergic to sea level. It is a simple calculator that determines the closest mountain range to your current location. It uses the GMBA Mountain Inventory database, cited below, and therefore output coordinates currently link to the geographic center of the nearest range, not mountain peaks themselves.
+                Welcome to <code>nearestmountain.com</code>, a tool for people who are allergic to sea level. It is a simple calculator that determines the closest mountain range to your current location. It uses the GMBA Mountain Inventory database, cited below, and as a result it outputs the geographic center of the nearest ranges, not individual mountain peaks.
             </p>
             <p>
                 The random range generator outputs a random mountain range from the GMBA database based on your selected elevation criteria.
             </p>
             <p>
-                Backgrounds: Nevado Sajama, Oruro, Bolivia & Garnet Peak, California, USA.
+                Background images: Nevado Sajama, Oruro, Bolivia & Garnet Peak, California, USA.
             </p>
             <p>
                 I can be reached at <code>me@michaelsalama.com</code>
             </p>
             <p className="citation">
-                Dataset: Snethlage, M.A., Geschke, J., Spehn, E.M., Ranipeta, A., Yoccoz, N.G., Körner, Ch., Jetz, W., Fischer, M. & Urbach, D. GMBA Mountain Inventory v2. GMBA-EarthEnv. https://doi.org/10.48601/earthenv-t9k2-1407 (2022).
+                Snethlage, M.A., Geschke, J., Spehn, E.M., Ranipeta, A., Yoccoz, N.G., Körner, Ch., Jetz, W., Fischer, M. & Urbach, D. GMBA Mountain Inventory v2. GMBA-EarthEnv. https://doi.org/10.48601/earthenv-t9k2-1407 (2022).
             </p>
         </div>
     </div>

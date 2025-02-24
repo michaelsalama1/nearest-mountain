@@ -70,11 +70,10 @@ var __TURBOPACK__imported__module__$5b$externals$5d2f$path__$5b$external$5d$__$2
 ;
 async function GET(req) {
     try {
-        // Parse query parameters
         const { searchParams } = new URL(req.url);
         const lat = parseFloat(searchParams.get("lat"));
         const lon = parseFloat(searchParams.get("lon"));
-        const minElevation = parseFloat(searchParams.get("minElevation")) || 0; // Default to 0 if not provided
+        const minElevation = parseFloat(searchParams.get("minElevation")) || 0;
         if (isNaN(lat) || isNaN(lon)) {
             return new Response(JSON.stringify({
                 error: "Invalid coordinates"
@@ -82,7 +81,7 @@ async function GET(req) {
                 status: 400
             });
         }
-        // Load the CSV data
+        // Load CSV data
         const filePath = __TURBOPACK__imported__module__$5b$externals$5d2f$path__$5b$external$5d$__$28$path$2c$__cjs$29$__["default"].join(process.cwd(), "public", "GMBA.csv");
         const csvData = await __TURBOPACK__imported__module__$5b$externals$5d2f$fs__$5b$external$5d$__$28$fs$2c$__cjs$29$__["promises"].readFile(filePath, "utf-8");
         // Convert CSV data to an array of objects
@@ -99,48 +98,46 @@ async function GET(req) {
                 region: columns[8],
                 map_unit: columns[31]
             };
-        }).filter((m)=>!isNaN(m.lat) && !isNaN(m.lon) && m.map_unit !== "Aggregated"); // Filter rows where type is not "Aggregated"
-        // Find the nearest mountain with elevation above the minimum threshold
-        let nearest = null;
-        let minDistance = Infinity;
+        }).filter((m)=>!isNaN(m.lat) && !isNaN(m.lon) && m.map_unit !== "Aggregated");
+        // Haversine function
         function haversine(lat1, lon1, lat2, lon2) {
-            const R = 6371; // Radius of Earth in km
+            const R = 6371;
             const toRad = (deg)=>deg * Math.PI / 180;
             const dLat = toRad(lat2 - lat1);
             const dLon = toRad(lon2 - lon1);
             const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
             return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         }
+        // Find the 10 nearest mountains above minElevation
+        let nearestMountains = [];
         mountains.forEach((mountain)=>{
-            // Only consider mountains that are above the minElevation
             if (mountain.elevation_high >= minElevation || mountain.elevation_low >= minElevation) {
                 const distance = haversine(lat, lon, mountain.lat, mountain.lon);
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    nearest = mountain;
+                // Maintain a sorted list of 10 closest mountains
+                if (nearestMountains.length < 10) {
+                    nearestMountains.push({
+                        ...mountain,
+                        distance
+                    });
+                    nearestMountains.sort((a, b)=>a.distance - b.distance);
+                } else if (distance < nearestMountains[9].distance) {
+                    nearestMountains[9] = {
+                        ...mountain,
+                        distance
+                    };
+                    nearestMountains.sort((a, b)=>a.distance - b.distance);
                 }
             }
         });
-        if (!nearest) {
+        if (nearestMountains.length === 0) {
             return new Response(JSON.stringify({
                 error: "No mountains found above the specified elevation"
             }), {
                 status: 404
             });
         }
-        return new Response(JSON.stringify({
-            name: nearest.name,
-            latitude: nearest.lat,
-            longitude: nearest.lon,
-            distance_km: minDistance.toFixed(2),
-            range: nearest.range,
-            countries: nearest.countries,
-            elevation_low: nearest.elevation_low,
-            elevation_high: nearest.elevation_high,
-            elevation_range: nearest.elevation_high - nearest.elevation_low,
-            region: nearest.region,
-            map_unit: nearest.map_unit
-        }), {
+        // Return the ordered list of 10 nearest mountains
+        return new Response(JSON.stringify(nearestMountains), {
             status: 200,
             headers: {
                 "Content-Type": "application/json"

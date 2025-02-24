@@ -41,11 +41,11 @@ export async function GET(req) {
         // Select a random mountain from the filtered list
         const randomMountain = filteredMountains[Math.floor(Math.random() * filteredMountains.length)];
 
-        // Return random mountain data
-        return NextResponse.json({
+        // Return random mountain data wrapped in an array
+        return NextResponse.json([{
             name: randomMountain.name,
-            latitude: randomMountain.lat,
-            longitude: randomMountain.lon,
+            lat: randomMountain.lat,
+            lon: randomMountain.lon,
             range: randomMountain.range,
             countries: randomMountain.countries,
             elevation_low: randomMountain.elevation_low,
@@ -53,7 +53,7 @@ export async function GET(req) {
             elevation_range: randomMountain.elevation_high - randomMountain.elevation_low,
             region: randomMountain.region,
             map_unit: randomMountain.map_unit,
-        });
+        }]);
     } catch (error) {
         console.error("Error fetching data from GMBA:", error);
         return NextResponse.json({ error: "Failed to fetch random mountain data" }, { status: 500 });

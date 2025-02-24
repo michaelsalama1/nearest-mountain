@@ -345,7 +345,7 @@ body {
   margin: 0;
   background-image: url("/_next/static/media/sajama.7eb85afb.JPG");
   background-size: cover;
-  transition: all 1s;
+  transition: all .4s;
 }
 
 @media screen and (width <= 768px) and (orientation: portrait) {
