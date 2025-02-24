@@ -444,7 +444,7 @@ function Home() {
                                         lineNumber: 213,
                                         columnNumber: 28
                                     }, this),
-                                    ", a webapp for people who are allergic to sea level. It is a simple calculator that determines the closest mountain range to your current location. It uses the GMBA Mountain Inventory database, cited below, and therefore output coordinates currently link to the geographic center of the nearest range, not mountain peaks themselves."
+                                    ", a tool for people who are allergic to sea level. It is a simple calculator that determines the closest mountain range to your current location. It uses the GMBA Mountain Inventory database, cited below, and as a result it outputs the geographic center of the nearest ranges, not individual mountain peaks."
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/page.js",
@@ -459,7 +459,7 @@ function Home() {
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                children: "Backgrounds: Nevado Sajama, Oruro, Bolivia & Garnet Peak, California, USA."
+                                children: "Background images: Nevado Sajama, Oruro, Bolivia & Garnet Peak, California, USA."
                             }, void 0, false, {
                                 fileName: "[project]/app/page.js",
                                 lineNumber: 218,
@@ -483,7 +483,7 @@ function Home() {
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                 className: "citation",
-                                children: "Dataset: Snethlage, M.A., Geschke, J., Spehn, E.M., Ranipeta, A., Yoccoz, N.G., Körner, Ch., Jetz, W., Fischer, M. & Urbach, D. GMBA Mountain Inventory v2. GMBA-EarthEnv. https://doi.org/10.48601/earthenv-t9k2-1407 (2022)."
+                                children: "Snethlage, M.A., Geschke, J., Spehn, E.M., Ranipeta, A., Yoccoz, N.G., Körner, Ch., Jetz, W., Fischer, M. & Urbach, D. GMBA Mountain Inventory v2. GMBA-EarthEnv. https://doi.org/10.48601/earthenv-t9k2-1407 (2022)."
                             }, void 0, false, {
                                 fileName: "[project]/app/page.js",
                                 lineNumber: 224,
