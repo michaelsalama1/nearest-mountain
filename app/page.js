@@ -93,7 +93,7 @@ export default function Home() {
             .then((res) => res.json())
             .then((data) => {
                 setNearestMountains(data);
-               // setCurrentMountainIndex(0); // Reset index to avoid out-of-bounds errors
+                setCurrentMountainIndex(0); // Reset index to avoid out-of-bounds errors
                 updateURL(data[0].lat, data[0].lon, elevation, 0); // Update the URL accordingly
             })
             .catch((error) => console.error("Error fetching data:", error));
