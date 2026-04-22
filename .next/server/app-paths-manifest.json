@@ -1,5 +1,5 @@
 {
-  "/page": "app/page.js",
-  "/api/nearestMountain/route": "app/api/nearestMountain/route.js",
-  "/api/randomRange/route": "app/api/randomRange/route.js"
+  "/api/game/daily/route": "app/api/game/daily/route.js",
+  "/gamemaster/page": "app/gamemaster/page.js",
+  "/play/page": "app/play/page.js"
 }

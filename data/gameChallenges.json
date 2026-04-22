@@ -1,0 +1,92 @@
+{
+  "2026-02-22": {
+    "id": "2026-02-22",
+    "rounds": [
+      {
+        "title": "Volcan Sajama",
+        "description": "Identify this high-altitude Andean landscape.",
+        "imageUrl": "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1600&q=80",
+        "latitude": -18.1085,
+        "longitude": -68.8824,
+        "region": "Oruro, Bolivia"
+      },
+      {
+        "title": "Mont Blanc Region",
+        "description": "",
+        "imageUrl": "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?auto=format&fit=crop&w=1600&q=80",
+        "latitude": 45.8326,
+        "longitude": 6.8652,
+        "region": "France/Italy Alps"
+      },
+      {
+        "title": "Aoraki Landscape",
+        "description": "",
+        "imageUrl": "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1600&q=80",
+        "latitude": -43.595,
+        "longitude": 170.1418,
+        "region": "South Island, New Zealand"
+      },
+      {
+        "title": "Patagonian Peaks",
+        "description": "",
+        "imageUrl": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1600&q=80",
+        "latitude": -49.3315,
+        "longitude": -72.8863,
+        "region": "Patagonia, Argentina"
+      },
+      {
+        "title": "Rocky Mountain Valley",
+        "description": "",
+        "imageUrl": "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1600&q=80",
+        "latitude": 39.7392,
+        "longitude": -104.9903,
+        "region": "Colorado, USA"
+      }
+    ]
+  },
+  "2026-04-22": {
+    "id": "2026-04-22",
+    "rounds": [
+      {
+        "title": "Palisade Glacier, Sierra Nevadas, USA",
+        "description": "",
+        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Palisades_%28California%29.jpg/960px-Palisades_%28California%29.jpg",
+        "latitude": 37.09426,
+        "longitude": -118.514455,
+        "region": ""
+      },
+      {
+        "title": "Spider Mountain, North Cascades, USA",
+        "description": "",
+        "imageUrl": "https://climberkyle.com/wp-content/uploads/2023/07/DSC08814-1024x1536.jpg",
+        "latitude": 48.409294,
+        "longitude": -121.036205,
+        "region": ""
+      },
+      {
+        "title": "Chimanta Massif, Venezuela",
+        "description": "",
+        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/f/fd/Kukenan_Tepuy_at_Sunset.jpg",
+        "latitude": 5.364931,
+        "longitude": -62.080513,
+        "region": ""
+      },
+      {
+        "title": "Jabal al-Harim",
+        "description": "",
+        "imageUrl": "https://dhowkhasabtours.com/wp-content/uploads/2024/04/mountain-safari.jpg",
+        "latitude": 25.976339,
+        "longitude": 56.231725,
+        "region": ""
+      },
+      {
+        "title": "Mt Etna, Italy",
+        "description": "",
+        "imageUrl": "https://afar.brightspotcdn.com/dims4/default/09fdb6c/2147483647/strip/false/crop/3000x2017+0+0/resize/1486x999!/quality/90/?url=https%3A%2F%2Fk3-prod-afar-media.s3.us-west-2.amazonaws.com%2Fbrightspot%2F82%2Fd7%2Fb0dc081148a9a1f5e936fed10f49%2Fshutterstock-2306511673.jpg",
+        "latitude": 37.753889,
+        "longitude": 14.993708,
+        "region": ""
+      }
+    ]
+  }
+}

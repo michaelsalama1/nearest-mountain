@@ -282,6 +282,7 @@ export default function Home() {
                         <button onClick={generateRandomRange} className="random-peak-button">
                             &#9968; Random Mountain Range &#9968;
                         </button>
+                        
                     </div>
                 ) : (
                     <p>Loading nearest mountain...</p>
