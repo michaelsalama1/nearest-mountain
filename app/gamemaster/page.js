@@ -32,7 +32,16 @@ export default function GamemasterPage() {
       const res = await fetch(`/api/game/challenges?date=${form.date}`, {
         cache: "no-store"
       });
-      const data = await res.json();
+      let data = {};
+      try {
+        data = await res.json();
+      } catch {
+        data = {};
+      }
+      if (!res.ok) {
+        setStatus(data.error || "Failed to load challenge for selected date.");
+        return;
+      }
       const incomingRounds = data.challenge?.rounds || [];
       const paddedRounds = Array.from({ length: 5 }, (_, index) =>
         incomingRounds[index]
@@ -137,7 +146,12 @@ export default function GamemasterPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       });
-      const data = await res.json();
+      let data = {};
+      try {
+        data = await res.json();
+      } catch {
+        data = {};
+      }
       if (!res.ok) throw new Error(data.error || "Failed to save challenge");
       setForm(payload);
       setStatus(`Saved challenge for ${form.date}.`);

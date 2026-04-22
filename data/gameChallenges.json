@@ -48,44 +48,79 @@
     "id": "2026-04-22",
     "rounds": [
       {
-        "title": "Palisade Glacier, Sierra Nevadas, USA",
+        "title": "Palisades, Sierra Nevadas, USA",
         "description": "",
-        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Palisades_%28California%29.jpg/960px-Palisades_%28California%29.jpg",
+        "imageUrl": "https://res.cloudinary.com/dwtaveb0v/image/upload/v1776887191/E65C8CBD-9B4B-4173-B496-6340047CAF6C_1_201_a_rq3ubz.jpg",
         "latitude": 37.09426,
-        "longitude": -118.514455,
-        "region": ""
+        "longitude": -118.514455
       },
       {
         "title": "Spider Mountain, North Cascades, USA",
         "description": "",
         "imageUrl": "https://climberkyle.com/wp-content/uploads/2023/07/DSC08814-1024x1536.jpg",
         "latitude": 48.409294,
-        "longitude": -121.036205,
-        "region": ""
+        "longitude": -121.036205
       },
       {
         "title": "Chimanta Massif, Venezuela",
         "description": "",
         "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/f/fd/Kukenan_Tepuy_at_Sunset.jpg",
         "latitude": 5.364931,
-        "longitude": -62.080513,
-        "region": ""
+        "longitude": -62.080513
       },
       {
         "title": "Jabal al-Harim",
         "description": "",
         "imageUrl": "https://dhowkhasabtours.com/wp-content/uploads/2024/04/mountain-safari.jpg",
         "latitude": 25.976339,
-        "longitude": 56.231725,
-        "region": ""
+        "longitude": 56.231725
       },
       {
         "title": "Mt Etna, Italy",
         "description": "",
         "imageUrl": "https://afar.brightspotcdn.com/dims4/default/09fdb6c/2147483647/strip/false/crop/3000x2017+0+0/resize/1486x999!/quality/90/?url=https%3A%2F%2Fk3-prod-afar-media.s3.us-west-2.amazonaws.com%2Fbrightspot%2F82%2Fd7%2Fb0dc081148a9a1f5e936fed10f49%2Fshutterstock-2306511673.jpg",
         "latitude": 37.753889,
-        "longitude": 14.993708,
-        "region": ""
+        "longitude": 14.993708
+      }
+    ]
+  },
+  "2026-04-23": {
+    "id": "2026-04-23",
+    "rounds": [
+      {
+        "title": "Bear Mountain, NY, USA",
+        "description": "",
+        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/6/6a/Bear_Mountain_Bridge%2C_NY_from_river_level_loking_East.JPG",
+        "latitude": 41.311838,
+        "longitude": -74.001746
+      },
+      {
+        "title": "Ranrapalca, Cordillera Blanca, Peru",
+        "description": "",
+        "imageUrl": "https://res.cloudinary.com/dwtaveb0v/image/upload/v1776885840/80FCBE6F-388F-4352-A3E5-DE0AE1AC5BEC_1_105_c_eisinl.jpg",
+        "latitude": -9.414159,
+        "longitude": -77.419349
+      },
+      {
+        "title": "Assiniboine, British Columbia, Canada",
+        "description": "",
+        "imageUrl": "https://img.goodfon.ru/original/5120x3200/a/fb/mount-assiniboine-east-kootenay-banff-canada-gora-assiniboin.jpg",
+        "latitude": 50.887418,
+        "longitude": -115.625377
+      },
+      {
+        "title": "K2, Pakistan",
+        "description": "",
+        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/c/cd/K2_Nordseite.jpg",
+        "latitude": 35.801944,
+        "longitude": 76.517778
+      },
+      {
+        "title": "Turk Ridge, New Zealand",
+        "description": "",
+        "imageUrl": "https://res.cloudinary.com/dwtaveb0v/image/upload/v1776886094/Screenshot_2026-04-22_at_3.27.55_PM_ph03fh.png",
+        "latitude": -42.101833,
+        "longitude": 172.8365
       }
     ]
   }
