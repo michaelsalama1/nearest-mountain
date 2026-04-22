@@ -1,1 +1,16 @@
-{}
+{
+  "app/play/page.js -> ./FinalResultsMap": {
+    "id": "app/play/page.js -> ./FinalResultsMap",
+    "files": [
+      "static/css/_app-pages-browser_app_play_FinalResultsMap_js.css",
+      "static/chunks/_app-pages-browser_app_play_FinalResultsMap_js.js"
+    ]
+  },
+  "app/play/page.js -> ./InteractiveGuessMap": {
+    "id": "app/play/page.js -> ./InteractiveGuessMap",
+    "files": [
+      "static/css/_app-pages-browser_app_play_InteractiveGuessMap_js.css",
+      "static/chunks/_app-pages-browser_app_play_InteractiveGuessMap_js.js"
+    ]
+  }
+}

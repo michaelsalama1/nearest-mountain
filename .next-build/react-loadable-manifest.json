@@ -1,0 +1,18 @@
+{
+  "app/play/page.js -> ./FinalResultsMap": {
+    "id": 4903,
+    "files": [
+      "static/css/857aa62baa17c894.css",
+      "static/chunks/d0deef33.5551c27c44e59cec.js",
+      "static/chunks/903.338621ca524aa6bd.js"
+    ]
+  },
+  "app/play/page.js -> ./InteractiveGuessMap": {
+    "id": 8332,
+    "files": [
+      "static/css/857aa62baa17c894.css",
+      "static/chunks/d0deef33.5551c27c44e59cec.js",
+      "static/chunks/332.373bcc5dc9a2a848.js"
+    ]
+  }
+}
