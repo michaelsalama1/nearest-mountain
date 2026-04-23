@@ -40,21 +40,22 @@
         "longitude": -62.080513
       },
       {
-        "title": "Jabal al-Harim",
-        "description": "",
-        "imageUrl": "https://dhowkhasabtours.com/wp-content/uploads/2024/04/mountain-safari.jpg",
-        "hint": "It is part of the Ru'us al-Jibal subrange.",
-        "latitude": 25.976339,
-        "longitude": 56.231725
-      },
-      {
         "title": "Mt Etna, Italy",
         "description": "",
         "imageUrl": "https://afar.brightspotcdn.com/dims4/default/09fdb6c/2147483647/strip/false/crop/3000x2017+0+0/resize/1486x999!/quality/90/?url=https%3A%2F%2Fk3-prod-afar-media.s3.us-west-2.amazonaws.com%2Fbrightspot%2F82%2Fd7%2Fb0dc081148a9a1f5e936fed10f49%2Fshutterstock-2306511673.jpg",
         "hint": "The largest of four active volcanoes in its country.",
         "latitude": 37.753889,
         "longitude": 14.993708
+      },
+      {
+        "title": "Jabal al-Harim, Oman",
+        "description": "",
+        "imageUrl": "https://dhowkhasabtours.com/wp-content/uploads/2024/04/mountain-safari.jpg",
+        "hint": "It is part of the Ru'us al-Jibal subrange.",
+        "latitude": 25.976339,
+        "longitude": 56.231725
       }
+      
     ]
   },
   "2026-04-23": {
@@ -103,5 +104,5 @@
       }
     ]
   }
-  
+
 }
