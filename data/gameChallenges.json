@@ -1,46 +1,14 @@
 {
-  "2026-02-22": {
-    "id": "2026-02-22",
+  "demo": {
+    "id": "demo",
     "rounds": [
       {
-        "title": "Volcan Sajama",
-        "description": "Identify this high-altitude Andean landscape.",
-        "imageUrl": "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1600&q=80",
-        "latitude": -18.1085,
-        "longitude": -68.8824,
-        "region": "Oruro, Bolivia"
-      },
-      {
-        "title": "Mont Blanc Region",
+        "title": "Matterhorn, Switzerland",
         "description": "",
-        "imageUrl": "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?auto=format&fit=crop&w=1600&q=80",
-        "latitude": 45.8326,
-        "longitude": 6.8652,
-        "region": "France/Italy Alps"
-      },
-      {
-        "title": "Aoraki Landscape",
-        "description": "",
-        "imageUrl": "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1600&q=80",
-        "latitude": -43.595,
-        "longitude": 170.1418,
-        "region": "South Island, New Zealand"
-      },
-      {
-        "title": "Patagonian Peaks",
-        "description": "",
-        "imageUrl": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1600&q=80",
-        "latitude": -49.3315,
-        "longitude": -72.8863,
-        "region": "Patagonia, Argentina"
-      },
-      {
-        "title": "Rocky Mountain Valley",
-        "description": "",
-        "imageUrl": "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1600&q=80",
-        "latitude": 39.7392,
-        "longitude": -104.9903,
-        "region": "Colorado, USA"
+        "imageUrl": "https://cdn12.picryl.com/photo/2016/12/31/matterhorn-alpine-zermatt-nature-landscapes-cefdfe-1024.jpg",
+        "hint": "It is the most famous mountain in the Alps.",
+        "latitude": 45.9766,
+        "longitude": 7.6585
       }
     ]
   },
@@ -51,6 +19,7 @@
         "title": "Palisades, Sierra Nevadas, USA",
         "description": "",
         "imageUrl": "https://res.cloudinary.com/dwtaveb0v/image/upload/v1776887191/E65C8CBD-9B4B-4173-B496-6340047CAF6C_1_201_a_rq3ubz.jpg",
+        "hint": "This group of peaks was photographed by Ansel Adams in 1936.",
         "latitude": 37.09426,
         "longitude": -118.514455
       },
@@ -58,6 +27,7 @@
         "title": "Spider Mountain, North Cascades, USA",
         "description": "",
         "imageUrl": "https://climberkyle.com/wp-content/uploads/2023/07/DSC08814-1024x1536.jpg",
+        "hint": "It is in a US National Park.",
         "latitude": 48.409294,
         "longitude": -121.036205
       },
@@ -65,6 +35,7 @@
         "title": "Chimanta Massif, Venezuela",
         "description": "",
         "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/f/fd/Kukenan_Tepuy_at_Sunset.jpg",
+        "hint": "It is a geological formation called \"tepuy\"",
         "latitude": 5.364931,
         "longitude": -62.080513
       },
@@ -72,6 +43,7 @@
         "title": "Jabal al-Harim",
         "description": "",
         "imageUrl": "https://dhowkhasabtours.com/wp-content/uploads/2024/04/mountain-safari.jpg",
+        "hint": "It is part of the Ru'us al-Jibal subrange.",
         "latitude": 25.976339,
         "longitude": 56.231725
       },
@@ -79,6 +51,7 @@
         "title": "Mt Etna, Italy",
         "description": "",
         "imageUrl": "https://afar.brightspotcdn.com/dims4/default/09fdb6c/2147483647/strip/false/crop/3000x2017+0+0/resize/1486x999!/quality/90/?url=https%3A%2F%2Fk3-prod-afar-media.s3.us-west-2.amazonaws.com%2Fbrightspot%2F82%2Fd7%2Fb0dc081148a9a1f5e936fed10f49%2Fshutterstock-2306511673.jpg",
+        "hint": "The largest of four active volcanoes in its country.",
         "latitude": 37.753889,
         "longitude": 14.993708
       }
@@ -88,39 +61,45 @@
     "id": "2026-04-23",
     "rounds": [
       {
+        "title": "K2, Pakistan",
+        "description": "",
+        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/c/cd/K2_Nordseite.jpg",
+        "hint": "One of the tallest--and deadliest--mountains in the world.",
+        "latitude": 35.801944,
+        "longitude": 76.517778
+      },
+      {
         "title": "Bear Mountain, NY, USA",
         "description": "",
         "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/6/6a/Bear_Mountain_Bridge%2C_NY_from_river_level_loking_East.JPG",
+        "hint": "This is just one hour from a major population center.",
         "latitude": 41.311838,
         "longitude": -74.001746
-      },
-      {
-        "title": "Ranrapalca, Cordillera Blanca, Peru",
-        "description": "",
-        "imageUrl": "https://res.cloudinary.com/dwtaveb0v/image/upload/v1776885840/80FCBE6F-388F-4352-A3E5-DE0AE1AC5BEC_1_105_c_eisinl.jpg",
-        "latitude": -9.414159,
-        "longitude": -77.419349
       },
       {
         "title": "Assiniboine, British Columbia, Canada",
         "description": "",
         "imageUrl": "https://img.goodfon.ru/original/5120x3200/a/fb/mount-assiniboine-east-kootenay-banff-canada-gora-assiniboin.jpg",
+        "hint": "The Matterhorn of the Western Hemisphere.",
         "latitude": 50.887418,
         "longitude": -115.625377
       },
       {
-        "title": "K2, Pakistan",
+        "title": "Ranrapalca, Cordillera Blanca, Peru",
         "description": "",
-        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/c/cd/K2_Nordseite.jpg",
-        "latitude": 35.801944,
-        "longitude": 76.517778
+        "imageUrl": "https://res.cloudinary.com/dwtaveb0v/image/upload/v1776885840/80FCBE6F-388F-4352-A3E5-DE0AE1AC5BEC_1_105_c_eisinl.jpg",
+        "hint": "Its range is home to the most ice in the tropics.",
+        "latitude": -9.414159,
+        "longitude": -77.419349
       },
       {
         "title": "Turk Ridge, New Zealand",
         "description": "",
         "imageUrl": "https://res.cloudinary.com/dwtaveb0v/image/upload/v1776886094/Screenshot_2026-04-22_at_3.27.55_PM_ph03fh.png",
+        "hint": "Located near the Clarence River.",
         "latitude": -42.101833,
         "longitude": 172.8365
+   
       }
     ]
   }

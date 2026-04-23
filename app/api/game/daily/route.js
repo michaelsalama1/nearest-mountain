@@ -19,6 +19,7 @@ function normalizeChallenge(challenge, date) {
         title: challenge.title || "",
         description: challenge.description || "",
         imageUrl: challenge.imageUrl || "",
+        hint: challenge.hint || "",
         latitude: Number(challenge.latitude),
         longitude: Number(challenge.longitude)
       }

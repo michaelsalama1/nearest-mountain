@@ -10,6 +10,7 @@ export default function GamemasterPage() {
   const createEmptyRound = () => ({
     title: "",
     description: "",
+    hint: "",
     imageUrl: "",
     imageMode: "url",
     latLon: "",
@@ -47,6 +48,7 @@ export default function GamemasterPage() {
         incomingRounds[index]
           ? {
               ...incomingRounds[index],
+              hint: incomingRounds[index].hint ?? "",
               imageMode: "url",
               latLon:
                 incomingRounds[index].latitude !== "" &&
@@ -132,7 +134,8 @@ export default function GamemasterPage() {
         return {
           ...round,
           latitude: parsedLat,
-          longitude: parsedLon
+          longitude: parsedLon,
+          hint: round.hint != null ? String(round.hint) : ""
         };
       });
 
@@ -236,8 +239,16 @@ export default function GamemasterPage() {
                   type="text"
                   value={round.description}
                   onChange={(e) => setRoundField(index, "description", e.target.value)}
-                  placeholder="Description (optional)"
+                  placeholder="Description"
                   aria-label={`Round ${index + 1} description`}
+                />
+
+                <input
+                  type="text"
+                  value={round.hint}
+                  onChange={(e) => setRoundField(index, "hint", e.target.value)}
+                  placeholder="Hint (optional) — multiplies round weight (1,1,2,3,3) by 0.75 if used"
+                  aria-label={`Round ${index + 1} hint`}
                 />
 
                 <div className="round-tabs">
@@ -262,7 +273,7 @@ export default function GamemasterPage() {
                     type="url"
                     value={round.imageUrl}
                     onChange={(e) => setRoundField(index, "imageUrl", e.target.value)}
-                    placeholder="Image URL (optional)"
+                    placeholder="Image URL"
                     aria-label={`Round ${index + 1} image URL`}
                   />
                 ) : (

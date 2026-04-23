@@ -31,11 +31,6 @@ const BASEMAPS = {
     url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
     attribution: "Tiles © Esri — Source: Esri, Maxar, Earthstar Geographics"
   },
-  terrain: {
-    label: "Terrain",
-    url: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
-    attribution: "Map data © OpenStreetMap contributors, SRTM | Map style: © OpenTopoMap"
-  },
   street: {
     label: "Street",
     url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",

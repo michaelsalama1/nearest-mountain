@@ -23,6 +23,7 @@ function normalizeChallenge(challenge, date) {
         title: challenge.title || "",
         description: challenge.description || "",
         imageUrl: challenge.imageUrl || "",
+        hint: challenge.hint || "",
         latitude: Number(challenge.latitude),
         longitude: Number(challenge.longitude)
       }
@@ -91,6 +92,7 @@ export async function POST(request) {
         title: round.title,
         description: round.description || "",
         imageUrl: round.imageUrl,
+        hint: round.hint != null ? String(round.hint) : "",
         latitude: Number(round.latitude),
         longitude: Number(round.longitude)
       }))
