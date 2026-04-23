@@ -591,7 +591,7 @@ export default function PlayPage() {
                 Welcome to Nearest Mountain!
               </h2>
               <p className="game-welcome-lead">
-                Click the map, then lock your guess. Here's a demo run before jumping into the daily challenge.
+                Click the map, then lock your guess. Here is a demo run before jumping into the daily challenge.
               </p>
             </div>
             <div className="game-welcome-actions">
