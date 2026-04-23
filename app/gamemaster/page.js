@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { getGameCalendarDateYMD } from "../../lib/calendarDate";
 
 function todayIso() {
-  return new Date().toISOString().slice(0, 10);
+  return getGameCalendarDateYMD();
 }
 
 export default function GamemasterPage() {

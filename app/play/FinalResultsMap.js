@@ -18,7 +18,9 @@ export default function FinalResultsMap({ roundResults, rounds }) {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
-        {roundResults.map((item) => {
+        {(roundResults || [])
+          .filter((item) => item && item.round >= 1)
+          .map((item) => {
           const fallbackRound = rounds?.[item.round - 1];
           const title = fallbackRound?.title || item.title || `Round ${item.round}`;
           const description = fallbackRound?.description || item.description || "";

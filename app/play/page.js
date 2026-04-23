@@ -145,7 +145,21 @@ export default function PlayPage() {
 
     try {
       const saved = JSON.parse(raw);
-      const savedResults = Array.isArray(saved.roundResults) ? saved.roundResults : [];
+      const rawResults = Array.isArray(saved.roundResults) ? saved.roundResults : [];
+      const isDemoKey = challengeDate === "demo";
+      const savedResults = isDemoKey
+        ? rawResults
+        : rawResults.filter((r) => r && typeof r.round === "number" && r.round >= 1);
+      if (!isDemoKey && rawResults.length !== savedResults.length) {
+        try {
+          window.localStorage.setItem(
+            storageKey,
+            JSON.stringify({ ...saved, roundResults: savedResults })
+          );
+        } catch {
+          // ignore
+        }
+      }
       setRoundResults(savedResults);
       setRoundIndex(Math.min(saved.roundIndex || 0, challenge.rounds.length - 1));
       setSubmitted(Boolean(saved.submitted));
@@ -205,7 +219,7 @@ export default function PlayPage() {
     return () => window.removeEventListener("keydown", onKey);
   }, [showWelcomeModal, dismissWelcomeModal]);
 
-  const goToRealDaily = async (round0Carry) => {
+  const goToRealDaily = async () => {
     if (typeof window === "undefined") return;
     window.localStorage.setItem(WELCOME_DONE_KEY, "1");
     try {
@@ -220,13 +234,12 @@ export default function PlayPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to load challenge");
       const n = data.challenge?.rounds?.length || 0;
-      const initialResults = round0Carry ? [round0Carry] : [];
       const key = `mountain-guessr:${data.date || ""}`;
       window.localStorage.setItem(
         key,
         JSON.stringify({
           roundIndex: 0,
-          roundResults: initialResults,
+          roundResults: [],
           submitted: false,
           guess: null,
           finished: false,
@@ -277,25 +290,22 @@ export default function PlayPage() {
     [roundResults]
   );
 
-  const totalScoreDaily = useMemo(
-    () =>
-      roundResults
-        .filter((r) => r.round >= 1)
-        .reduce((sum, item) => sum + item.score, 0),
+  const roundResultsDailyOnly = useMemo(
+    () => roundResults.filter((r) => r && r.round >= 1),
     [roundResults]
+  );
+
+  const totalScoreDaily = useMemo(
+    () => roundResultsDailyOnly.reduce((sum, item) => sum + item.score, 0),
+    [roundResultsDailyOnly]
   );
 
   const currentRound = challenge?.rounds?.[roundIndex] || null;
   const roundsCount = challenge?.rounds?.length || 0;
-  const hasRound0 = roundResults.some((r) => r.round === 0);
   const nDailyRounds = roundsCount;
-  const dailyRoundsInResults = roundResults.filter((r) => r.round >= 1);
+  const dailyRoundsInResults = roundResultsDailyOnly;
   const gameFinished =
-    nDailyRounds > 0 &&
-    !isDemo &&
-    (hasRound0
-      ? dailyRoundsInResults.length === nDailyRounds
-      : roundResults.length === nDailyRounds);
+    nDailyRounds > 0 && !isDemo && dailyRoundsInResults.length === nDailyRounds;
   const maxTotalScore = useMemo(
     () =>
       ROUND_MULTIPLIERS
@@ -394,7 +404,7 @@ export default function PlayPage() {
   const shareSummary = useMemo(() => {
     if (!gameFinished) return "";
     const prettyDate = formatChallengeDate(challengeDate);
-    const shareRounds = roundResults.filter((r) => r.round >= 1);
+    const shareRounds = roundResultsDailyOnly;
     const roundsText = shareRounds
       .map((item) => {
         const multIndex = item.round - 1;
@@ -408,7 +418,7 @@ export default function PlayPage() {
       })
       .join(" ");
     return `nearestmountain.com/play ${prettyDate}\n${roundsText}\nFinal score: ${displayTotalScore}`;
-  }, [gameFinished, roundResults, challengeDate, displayTotalScore]);
+  }, [gameFinished, roundResultsDailyOnly, challengeDate, displayTotalScore]);
 
   const onShare = async () => {
     if (!shareSummary) return;
@@ -452,27 +462,10 @@ export default function PlayPage() {
     if (isLastRound) setAlreadyPlayedToday(true);
   };
 
-  const leaveDemoToRealDaily = () => goToRealDaily(null);
+  const leaveDemoToRealDaily = () => goToRealDaily();
 
   const completeDemoAndStartDaily = () => {
-    if (!currentRound || !result) return;
-    const r0 = {
-      round: 0,
-      title: currentRound.title || "",
-      description: currentRound.description || "",
-      baseScore: result.baseScore,
-      multiplier: result.multiplier,
-      effectiveMultiplier: result.effectiveMultiplier,
-      usedHint: result.usedHint,
-      score: result.score,
-      distanceKm: result.distanceKm,
-      guess,
-      actual: {
-        lat: currentRound.latitude,
-        lon: currentRound.longitude
-      }
-    };
-    goToRealDaily(r0);
+    goToRealDaily();
   };
 
   if (loading) {
@@ -718,7 +711,7 @@ export default function PlayPage() {
         </section>
       ) : null}
 
-      {gameFinished && roundResults.length ? (
+      {gameFinished && roundResultsDailyOnly.length ? (
         <section className="game-result game-card game-card--summary">
           <h3 className="game-card__head">Score summary</h3>
           <div className="game-final-total-row">
@@ -736,15 +729,12 @@ export default function PlayPage() {
           </div>
           {shareStatus ? <p className="game-share-status">{shareStatus}</p> : null}
           <ul className="game-breakdown-list" aria-label="Points by round">
-            {[...roundResults]
+            {[...roundResultsDailyOnly]
               .sort((a, b) => a.round - b.round)
               .map((item) => {
                 const roundTitle =
                   (item.title && String(item.title).trim()) ||
-                  (item.round > 0
-                    ? (challenge?.rounds?.[item.round - 1]?.title || "")
-                    : ""
-                  ).trim();
+                  (challenge?.rounds?.[item.round - 1]?.title || "").trim();
                 return (
                   <li key={item.round} className="game-breakdown-list__row">
                     <span className="game-breakdown-list__round">R{item.round}</span>
@@ -768,7 +758,10 @@ export default function PlayPage() {
               })}
           </ul>
           <h4 className="game-subhead">Map</h4>
-          <FinalResultsMap roundResults={roundResults} rounds={challenge?.rounds || []} />
+          <FinalResultsMap
+            roundResults={roundResultsDailyOnly}
+            rounds={challenge?.rounds || []}
+          />
           <div className="game-end-actions">
             <a
               className="game-btn game-btn--secondary"

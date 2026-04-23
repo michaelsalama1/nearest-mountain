@@ -1,4 +1,4 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import { Bungee, DM_Sans, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -11,6 +11,18 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+/** /play: chunky display + humanist UI (avoid “default Geist card” look) */
+const nmDisplay = Bungee({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-nm-display",
+});
+
+const nmUi = DM_Sans({
+  subsets: ["latin"],
+  variable: "--font-nm-sans",
+});
+
 export const metadata = {
   title: "Find the Nearest Mountain",
 };
@@ -21,7 +33,7 @@ export default function RootLayout({ children }) {
       <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>&#127956;</text></svg>" />
       <meta property="og:image" content="/_next/static/media/sajama.c4d73355.JPG" />
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${nmDisplay.variable} ${nmUi.variable} antialiased`}
       >
         {children}
       </body>
