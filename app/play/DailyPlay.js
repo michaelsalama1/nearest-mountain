@@ -9,8 +9,8 @@ const InteractiveGuessMap = dynamic(() => import("./InteractiveGuessMap"), {
 
 const MAX_TRIES = 5;
 const BASE_MAX = 1000;
-const MIN_BASE = 800;
-const BASE_DROP_PER_TRY = 50;
+const MIN_BASE = 900;
+const BASE_DROP_PER_TRY = 25;
 const SCORE_DISTANCE_SCALE_KM = 2000;
 const LEAVE_NO_TRACE_URL =
   "https://lnt.org/why/7-principles/?gad_source=1&gad_campaignid=18565554164&gbraid=0AAAAADFQyoq7FQPJLmdZkhr4lmfpKTemO&gclid=EAIaIQobChMItcv3-4GHlAMVvzIIBR07YR2DEAAYAiAAEgK8B_D_BwE";
@@ -46,6 +46,13 @@ function formatChallengeDate(isoDate) {
   return date.toLocaleDateString("en-US", { month: "long", day: "numeric" });
 }
 
+function formatShareDate(isoDate) {
+  if (!isoDate) return "Daily";
+  const date = new Date(`${isoDate}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return isoDate;
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
 function emojiForScore(score) {
   if (score >= 950) return "🎯";
   if (score >= 900) return "🏔️";
@@ -77,7 +84,6 @@ export default function DailyPlay() {
   const [error, setError] = useState("");
   const [guess, setGuess] = useState(null);
   const [attempts, setAttempts] = useState([]);
-  const [lockedAtTry, setLockedAtTry] = useState(null);
   const [shareStatus, setShareStatus] = useState("");
   const [showFinalScoreModal, setShowFinalScoreModal] = useState(false);
   const [showFinalScoreNumber, setShowFinalScoreNumber] = useState(false);
@@ -123,11 +129,6 @@ export default function DailyPlay() {
       const saved = JSON.parse(raw);
       setAttempts(Array.isArray(saved.attempts) ? saved.attempts : []);
       setGuess(saved.guess || null);
-      setLockedAtTry(
-        Number.isInteger(saved.lockedAtTry) && saved.lockedAtTry > 0
-          ? saved.lockedAtTry
-          : null
-      );
     } catch {
       // ignore bad localStorage
     }
@@ -140,16 +141,28 @@ export default function DailyPlay() {
 
   const latest = attempts[attempts.length - 1] || null;
   const mapGuess = guess || latest?.guess || null;
-  const forcedLockTry = attempts.length >= MAX_TRIES ? MAX_TRIES : null;
-  const resolvedLockTry = lockedAtTry || forcedLockTry;
-  const finished = Boolean(resolvedLockTry);
+  const perfectHit = attempts.some((attempt) => attempt.points >= 1000);
+  const finished = attempts.length >= MAX_TRIES || perfectHit;
   const triesLeft = Math.max(0, MAX_TRIES - attempts.length);
 
-  const finalAttempt = resolvedLockTry ? attempts[resolvedLockTry - 1] || null : null;
-  const finalScore = finalAttempt?.points || 0;
+  const bestAttempt =
+    attempts.length > 0
+      ? attempts.reduce((best, attempt) => (attempt.points > best.points ? attempt : best), attempts[0])
+      : null;
+  const closestAttempt =
+    attempts.length > 0
+      ? attempts.reduce(
+          (closest, attempt) =>
+            attempt.distanceKm < closest.distanceKm ? attempt : closest,
+          attempts[0]
+        )
+      : null;
+  const finalScore = bestAttempt?.points || 0;
   const canSubmitTry = !finished;
-  const currentTryMax = baseScoreForTry(attempts.length + 1);
-  const showFireworks = finished && showFinalScoreModal && finalScore > 950;
+  const currentTryMax = !finished ? baseScoreForTry(attempts.length + 1) : 0;
+  const summitAttemptNumber = attempts.find((attempt) => attempt.distanceKm <= 10)?.tryNumber || null;
+  const summited = Boolean(closestAttempt && closestAttempt.distanceKm <= 10);
+  const showFireworks = finished && showFinalScoreModal && summited;
   const finalScoreTierClass = scoreTierClass(finalScore);
   const showWelcomeModal =
     !loading &&
@@ -245,36 +258,21 @@ export default function DailyPlay() {
       }
     ];
     setAttempts(nextAttempts);
-    const hitMaxTries = nextAttempts.length >= MAX_TRIES;
-    const nextTryNumber = tryNumber + 1;
-    const nextTryMax = nextTryNumber <= MAX_TRIES ? baseScoreForTry(nextTryNumber) : 0;
-    const autoLock = !hitMaxTries && nextTryMax < points;
-    const nextLockedAtTry = hitMaxTries || autoLock ? tryNumber : lockedAtTry;
-    setLockedAtTry(nextLockedAtTry);
     setGuess(null);
     persist({
       attempts: nextAttempts,
-      guess: null,
-      lockedAtTry: nextLockedAtTry
-    });
-  };
-
-  const lockInScore = () => {
-    if (!latest || finished) return;
-    const chosenTry = latest.tryNumber;
-    setLockedAtTry(chosenTry);
-    persist({
-      attempts,
-      guess: null,
-      lockedAtTry: chosenTry
+      guess: null
     });
   };
 
   const shareSummary = useMemo(() => {
-    if (!finished || !currentRound || !finalAttempt) return "";
+    if (!finished || !currentRound || !bestAttempt) return "";
     const emoji = emojiForScore(finalScore);
-    return `nearestmountain.com/play\nFinal score: ${finalScore}/1000 ${emoji}`;
-  }, [finished, currentRound, finalAttempt, finalScore]);
+    const prettyDate = formatShareDate(challengeDate);
+    return summited
+      ? `nearestmountain.com/play\n${prettyDate}: ${finalScore}/1000 ${emoji}\nSUMMITED!`
+      : `nearestmountain.com/play\n${prettyDate}: ${finalScore}/1000 ${emoji}\nclosest summit attempt: ${closestAttempt?.distanceKm.toFixed(1) || "0.0"}km off`;
+  }, [finished, currentRound, closestAttempt, finalScore, challengeDate, summited]);
 
   const onShare = async () => {
     if (!shareSummary) return;
@@ -323,12 +321,12 @@ export default function DailyPlay() {
         <div className="game-hud__brand">
           <span className="game-hud__mark" aria-hidden>⛰</span>
           <div className="game-hud__brand-text">
-            <h1 className="game-hud__title">Nearest Mountain</h1>
+            <h1 className="game-hud__title">Summit Attempt</h1>
             <p className="game-hud__date">{formatChallengeDate(challengeDate)}</p>
           </div>
         </div>
 
-        <div className="game-round-track" role="list" aria-label="Tries used">
+        <div className="game-round-track" role="list" aria-label="Attempts used">
           {Array.from({ length: MAX_TRIES }, (_, p) => {
             const done = p < attempts.length;
             const current = !finished && p === attempts.length;
@@ -342,7 +340,7 @@ export default function DailyPlay() {
                 ]
                   .filter(Boolean)
                   .join(" ")}
-                title={`Try ${p + 1}`}
+                title={`Attempt ${p + 1}`}
                 role="listitem"
               />
             );
@@ -350,7 +348,7 @@ export default function DailyPlay() {
         </div>
 
         <div className="game-hud__stats">
-          {finished ? <p className="game-hud__badge">Locked in</p> : null}
+          {finished ? <p className="game-hud__badge">Finished</p> : null}
           <p className="game-hud__scoreline">
             <span className="game-hud__label">Score</span>
             <span className="game-hud__scoreval">
@@ -373,17 +371,17 @@ export default function DailyPlay() {
           >
             <div id="daily-welcome-content">
               <h2 className="game-welcome-title" id="daily-welcome-title">
-                Nearest Mountain Daily Challenge
+                Summit Attempt Daily Challenge
               </h2>
               <p className="game-welcome-lead">
-                You have 5 guesses to pinpoint this mountain!
+                You have 5 attempts to pinpoint this mountain!
               </p>
               <p className="game-welcome-lead">
-                After each guess, you will know how far off you were, and you will have the option
-                to guess again. But you lose 50 points for each additional guess.
+                After each attempt, you will know how far off you were, and you can attempt again.
+                But you lose 25 points for each additional attempt.
               </p>
               <p className="game-welcome-lead">
-                So after each guess, you can lock it in and share with friends, or guess again!
+                You get up to 5 attempts unless you hit 1000 points early.
               </p>
             </div>
             <div className="game-welcome-actions">
@@ -429,7 +427,7 @@ export default function DailyPlay() {
           >
             <p className="game-final-modal__eyebrow">Daily complete</p>
             <h2 className="game-final-modal__title" id="daily-final-score-title">
-              Final score
+              {summited ? "You've summited today's mountain!" : "Final score"}
             </h2>
             <p className="game-final-modal__place">{currentRound.title}</p>
             <a
@@ -460,8 +458,13 @@ export default function DailyPlay() {
               </p>
             )}
             <p className="game-final-modal__distance">
-              Final distance: {finalAttempt?.distanceKm?.toFixed(1) || "0.0"} km off
+              Closest attempt: {closestAttempt?.distanceKm?.toFixed(1) || "0.0"} km off
             </p>
+            {summited && summitAttemptNumber ? (
+              <p className="game-final-modal__distance">
+                It took you {summitAttemptNumber} {summitAttemptNumber === 1 ? "attempt" : "attempts"} to summit.
+              </p>
+            ) : null}
             <div className="game-final-modal__actions">
               <button
                 type="button"
@@ -523,25 +526,22 @@ export default function DailyPlay() {
           <div className="game-controls">
             {!finished ? (
               <p>
-                Try {Math.min(attempts.length + 1, MAX_TRIES)} of {MAX_TRIES} · {triesLeft} left
+                Attempt {Math.min(attempts.length + 1, MAX_TRIES)} of {MAX_TRIES} · {triesLeft} left
               </p>
             ) : null}
             {latest ? (
               <p className="game-distance-readout">
-                Last guess
-                <span className="game-distance-value">{latest.distanceKm.toFixed(1)} km away</span>
+                Last attempt
+                <span className="game-distance-value">
+                  {latest.distanceKm.toFixed(1)} km away ({latest.points} pts)
+                </span>
               </p>
             ) : (
               <p>
-                After each guess, you&apos;ll know the distance away, but not the direction. You can
-                choose to guess again or lock in your score and share with friends.
+                After each attempt, you&apos;ll know the distance away, but not the direction. You can
+                keep refining for up to 5 attempts (or stop early if you hit 1000).
               </p>
             )}
-            {latest && !finished ? (
-              <p>
-                Current lock score: {latest.points}/1000
-              </p>
-            ) : null}
           </div>
         </section>
 
@@ -556,13 +556,13 @@ export default function DailyPlay() {
           <div className="game-controls">
             {guess ? (
               <p>
-                Guess: {guess.lat}, {guess.lon}
+                Attempt: {guess.lat}, {guess.lon}
               </p>
             ) : (
               <p>
                 {finished
                   ? "Daily complete."
-                  : "Click the map to place your guess."}
+                  : "Click the map to place your attempt."}
               </p>
             )}
             <button
@@ -573,30 +573,19 @@ export default function DailyPlay() {
             >
               {finished
                 ? "Complete"
-                : `Submit guess (max ${currentTryMax})`}
+                : `Submit attempt (max ${currentTryMax} pts)`}
             </button>
-            {latest && !finished ? (
-              <>
-                <button
-                  type="button"
-                  className="game-btn game-btn--success game-btn--lock"
-                  onClick={lockInScore}
-                >
-                  Lock in {latest?.points || 0}/1000
-                </button>
-              </>
-            ) : null}
           </div>
         </section>
       </div>
 
       {attempts.length ? (
         <section className="game-result game-card game-card--summary">
-          <h3 className="game-card__head">Try history</h3>
-          <ul className="game-breakdown-list" aria-label="Try results">
+          <h3 className="game-card__head">Summit Attempts</h3>
+          <ul className="game-breakdown-list" aria-label="Attempt results">
             {attempts.map((item) => (
               <li key={item.tryNumber} className="game-breakdown-list__row">
-                <span className="game-breakdown-list__round">T{item.tryNumber}</span>
+                <span className="game-breakdown-list__round">A{item.tryNumber}</span>
                 <span className="game-breakdown-list__name">
                   {item.distanceKm.toFixed(1)} km away
                 </span>
@@ -612,7 +601,7 @@ export default function DailyPlay() {
           {finished ? (
             <div className="game-final-total-row">
               <p className="game-final-total-line">
-                <strong>Final score</strong> {finalScore}/1000
+                <strong>Best score</strong> {finalScore}/1000
               </p>
               <button type="button" className="game-btn game-btn--primary" onClick={onShare}>
                 Share

@@ -185,7 +185,7 @@ export default function Home() {
     return (
         <div className="full-container">
             <div className="app-container">
-                <h1>Find the Nearest Mountain &#127956;</h1>
+                <h1>Summit Attempt &#127956;</h1>
                 {latitude && longitude ? (
                     <div className="location">
                         <p className="your-loc">

@@ -25,7 +25,7 @@ const nmUi = DM_Sans({
 });
 
 export const metadata = {
-  title: "Find the Nearest Mountain",
+  title: "Summit Attempt",
 };
 
 export default function RootLayout({ children }) {

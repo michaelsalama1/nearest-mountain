@@ -577,7 +577,7 @@ function ClassicPlay() {
         <div className="game-hud__brand">
           <span className="game-hud__mark" aria-hidden>⛰</span>
           <div className="game-hud__brand-text">
-            <h1 className="game-hud__title">Nearest Mountain</h1>
+            <h1 className="game-hud__title">Summit Attempt</h1>
             <p className="game-hud__date">
               {isDemo ? "Demo (practice) — not your real daily" : formatChallengeDate(challengeDate)}
             </p>
@@ -651,10 +651,10 @@ function ClassicPlay() {
           >
             <div id="game-welcome-content">
               <h2 className="game-welcome-title" id="game-welcome-title">
-                Welcome to Nearest Mountain!
+                Welcome to Summit Attempt!
               </h2>
               <p className="game-welcome-lead">
-                Click the map, then lock your guess. Here is a demo run before jumping into the daily challenge.
+                Click the map, then lock your attempt. Here is a demo run before jumping into the daily challenge.
               </p>
             </div>
             <div className="game-welcome-actions">
@@ -802,10 +802,10 @@ function ClassicPlay() {
           <div className="game-controls">
             {guess ? (
               <p>
-                Guess: {guess.lat}, {guess.lon}
+                Attempt: {guess.lat}, {guess.lon}
               </p>
             ) : (
-              <p>Click the map to place your guess.</p>
+              <p>Click the map to place your attempt.</p>
             )}
 
             <button
@@ -814,7 +814,7 @@ function ClassicPlay() {
               disabled={!guess || submitted}
               onClick={() => setSubmitted(true)}
             >
-              {submitted ? "Guess locked" : "Lock guess"}
+              {submitted ? "Attempt locked" : "Lock attempt"}
             </button>
           </div>
         </section>
