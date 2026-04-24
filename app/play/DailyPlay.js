@@ -526,7 +526,7 @@ export default function DailyPlay() {
               </p>
             ) : (
               <p>
-                After each guess, you'll know the distance away, but not the direction. You can
+                After each guess, you&apos;ll know the distance away, but not the direction. You can
                 choose to guess again or lock in your score and share with friends.
               </p>
             )}
