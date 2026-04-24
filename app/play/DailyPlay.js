@@ -3,15 +3,9 @@
 import { useMemo, useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 
-const InteractiveGuessMap = dynamic(() => import("./InteractiveGuessMap"), {
-  ssr: false
-});
+const InteractiveGuessMap = dynamic(() => import("./InteractiveGuessMap"), { ssr: false });
 
-const MAX_TRIES = 5;
-const BASE_MAX = 1000;
-const MIN_BASE = 900;
-const BASE_DROP_PER_TRY = 25;
-const SCORE_DISTANCE_SCALE_KM = 2000;
+const SUMMIT_DISTANCE_KM = 10;
 const LEAVE_NO_TRACE_URL =
   "https://lnt.org/why/7-principles/?gad_source=1&gad_campaignid=18565554164&gbraid=0AAAAADFQyoq7FQPJLmdZkhr4lmfpKTemO&gclid=EAIaIQobChMItcv3-4GHlAMVvzIIBR07YR2DEAAYAiAAEgK8B_D_BwE";
 const DAILY_WELCOME_DONE_KEY = "nm_daily_welcome_done";
@@ -28,15 +22,88 @@ function haversineKm(lat1, lon1, lat2, lon2) {
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-function baseScoreForTry(tryNumber) {
-  return Math.max(MIN_BASE, BASE_MAX - (tryNumber - 1) * BASE_DROP_PER_TRY);
+function directionFromGuessToTarget(guessLat, guessLon, targetLat, targetLon) {
+  const deltaLat = targetLat - guessLat;
+  const deltaLon = targetLon - guessLon;
+  const angle = (Math.atan2(deltaLat, deltaLon) * 180) / Math.PI;
+
+  if (angle >= -22.5 && angle < 22.5) return "e";
+  if (angle >= 22.5 && angle < 67.5) return "ne";
+  if (angle >= 67.5 && angle < 112.5) return "n";
+  if (angle >= 112.5 && angle < 157.5) return "nw";
+  if (angle >= 157.5 || angle < -157.5) return "w";
+  if (angle >= -157.5 && angle < -112.5) return "sw";
+  if (angle >= -112.5 && angle < -67.5) return "s";
+  return "se";
 }
 
-function scoreForAttempt(tryNumber, distanceKm) {
-  const base = baseScoreForTry(tryNumber);
-  const safeDistanceKm = Math.max(0, distanceKm);
-  const score = base * Math.exp(-safeDistanceKm / SCORE_DISTANCE_SCALE_KM);
-  return Math.max(1, Math.round(score));
+function normalizeDirection(direction) {
+  const lower = (direction || "").trim().toLowerCase();
+  if (["n", "ne", "e", "se", "s", "sw", "w", "nw"].includes(lower)) return lower;
+  return "n";
+}
+
+function directionGlyph(direction) {
+  const glyphMap = {
+    n: "⬆",
+    ne: "⬈",
+    e: "➡",
+    se: "⬊",
+    s: "⬇",
+    sw: "⬋",
+    w: "⬅",
+    nw: "⬉"
+  };
+  return glyphMap[normalizeDirection(direction)] || "⬆";
+}
+
+function summitEmojiForAttempts(attemptNumber) {
+  if (attemptNumber <= 1) return "🎯";
+  if (attemptNumber <= 5) return "🧗";
+  if (attemptNumber <= 9) return "⛏️";
+  return "😴";
+}
+
+function baseAttemptFeedbackMessage(distanceKm, summited) {
+  if (summited) return "Summit achieved. Boots off, snacks out.";
+
+  const ranges = [
+    { maxKm: 1, msg: "Perfect line. You're basically standing on the summit cairn." },
+    { maxKm: 2, msg: "Elite pinpointing. Ice-axe precision." },
+    { maxKm: 3, msg: "Incredible read. That is guide-level navigation." },
+    { maxKm: 5, msg: "Outstanding. Rope up, you're right there." },
+    { maxKm: 8, msg: "Super sharp. The peak is within touching distance." },
+    { maxKm: 12, msg: "Excellent placement. One small step to the top." },
+    { maxKm: 18, msg: "Great call. You're climbing the right face." },
+    { maxKm: 25, msg: "Strong move. Summit ridge is clearly in view." },
+    { maxKm: 35, msg: "Very good. You chose the right mountain system." },
+    { maxKm: 50, msg: "Solid effort. Keep that bearing and tighten up." },
+    { maxKm: 70, msg: "Good trekking. You're on a promising line." },
+    { maxKm: 100, msg: "Nice route-finding. A little more precision." },
+    { maxKm: 140, msg: "Decent altitude awareness. Dial the map in." },
+    { maxKm: 200, msg: "Not bad. You're in the broader summit zone." },
+    { maxKm: 280, msg: "Reasonable guess. Refine your contour read." },
+    { maxKm: 400, msg: "Mid-mountain energy. Keep adjusting." },
+    { maxKm: 560, msg: "You found the region. Now find the peak." },
+    { maxKm: 800, msg: "The trail is warm, not hot." },
+    { maxKm: 1100, msg: "You're hiking in the right hemisphere vibe." },
+    { maxKm: 1500, msg: "Big mountain country, wrong exact summit." },
+    { maxKm: 2100, msg: "Ambitious line choice. Needs sharper bearings." },
+    { maxKm: 3000, msg: "You're on expedition mode now." },
+    { maxKm: 4200, msg: "This is less summit push, more scenic traverse." },
+    { maxKm: 6000, msg: "You packed for a trek, got a road trip." },
+    { maxKm: 8500, msg: "That guess needs a helicopter transfer." },
+    { maxKm: 11000, msg: "Different range, strong confidence." },
+    { maxKm: 14000, msg: "Impressive commitment to the wrong mountain." },
+    { maxKm: 17000, msg: "You're hiking by vibes alone right now." },
+    { maxKm: 19500, msg: "Basecamp called. They can't find you." },
+    { maxKm: Number.POSITIVE_INFINITY, msg: "Legendary detour. The summit sent a postcard." }
+  ];
+
+  for (const range of ranges) {
+    if (distanceKm <= range.maxKm) return range.msg;
+  }
+  return ranges[ranges.length - 1].msg;
 }
 
 function formatChallengeDate(isoDate) {
@@ -51,21 +118,6 @@ function formatShareDate(isoDate) {
   const date = new Date(`${isoDate}T00:00:00`);
   if (Number.isNaN(date.getTime())) return isoDate;
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-}
-
-function emojiForScore(score) {
-  if (score >= 950) return "🎯";
-  if (score >= 900) return "🏔️";
-  if (score >= 800) return "🌄";
-  if (score >= 700) return "⛰️";
-  return "🔭";
-}
-
-function scoreTierClass(score) {
-  if (score < 200) return "game-score-tier--bad";
-  if (score < 500) return "game-score-tier--ok";
-  if (score < 700) return "game-score-tier--good";
-  return "game-score-tier--great";
 }
 
 function createRandomFirework(idSeed) {
@@ -86,8 +138,6 @@ export default function DailyPlay() {
   const [attempts, setAttempts] = useState([]);
   const [shareStatus, setShareStatus] = useState("");
   const [showFinalScoreModal, setShowFinalScoreModal] = useState(false);
-  const [showFinalScoreNumber, setShowFinalScoreNumber] = useState(false);
-  const [finalScoreFillPercent, setFinalScoreFillPercent] = useState(0);
   const [fireworksBursts, setFireworksBursts] = useState([]);
   const [dismissedWelcomeModal, setDismissedWelcomeModal] = useState(() => {
     if (typeof window === "undefined") return true;
@@ -103,9 +153,10 @@ export default function DailyPlay() {
         const res = await fetch("/api/game/daily", { cache: "no-store" });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Failed to load challenge");
-        if (cancelled) return;
-        setChallenge(data.challenge);
-        setChallengeDate(data.date || "");
+        if (!cancelled) {
+          setChallenge(data.challenge);
+          setChallengeDate(data.date || "");
+        }
       } catch (e) {
         if (!cancelled) setError(e.message);
       } finally {
@@ -130,7 +181,7 @@ export default function DailyPlay() {
       setAttempts(Array.isArray(saved.attempts) ? saved.attempts : []);
       setGuess(saved.guess || null);
     } catch {
-      // ignore bad localStorage
+      // ignore bad storage
     }
   }, [storageKey]);
 
@@ -141,34 +192,21 @@ export default function DailyPlay() {
 
   const latest = attempts[attempts.length - 1] || null;
   const mapGuess = guess || latest?.guess || null;
-  const perfectHit = attempts.some((attempt) => attempt.points >= 1000);
-  const finished = attempts.length >= MAX_TRIES || perfectHit;
-  const triesLeft = Math.max(0, MAX_TRIES - attempts.length);
-
-  const bestAttempt =
-    attempts.length > 0
-      ? attempts.reduce((best, attempt) => (attempt.points > best.points ? attempt : best), attempts[0])
-      : null;
+  const summitAttempt = attempts.find((a) => a.distanceKm <= SUMMIT_DISTANCE_KM) || null;
+  const summited = Boolean(summitAttempt);
+  const finished = summited;
+  const canSubmitAttempt = !summited;
   const closestAttempt =
     attempts.length > 0
-      ? attempts.reduce(
-          (closest, attempt) =>
-            attempt.distanceKm < closest.distanceKm ? attempt : closest,
-          attempts[0]
-        )
+      ? attempts.reduce((closest, a) => (a.distanceKm < closest.distanceKm ? a : closest), attempts[0])
       : null;
-  const finalScore = bestAttempt?.points || 0;
-  const canSubmitTry = !finished;
-  const currentTryMax = !finished ? baseScoreForTry(attempts.length + 1) : 0;
-  const summitAttemptNumber = attempts.find((attempt) => attempt.distanceKm <= 10)?.tryNumber || null;
-  const summited = Boolean(closestAttempt && closestAttempt.distanceKm <= 10);
-  const showFireworks = finished && showFinalScoreModal && summited;
-  const finalScoreTierClass = scoreTierClass(finalScore);
-  const showWelcomeModal =
-    !loading &&
-    !error &&
-    attempts.length === 0 &&
-    !dismissedWelcomeModal;
+
+  const showFireworks =
+    finished &&
+    showFinalScoreModal &&
+    summited &&
+    (summitAttempt?.tryNumber || Number.POSITIVE_INFINITY) <= 5;
+  const showWelcomeModal = !loading && !error && attempts.length === 0 && !dismissedWelcomeModal;
 
   useEffect(() => {
     if (finished) setShowFinalScoreModal(true);
@@ -176,37 +214,27 @@ export default function DailyPlay() {
 
   useEffect(() => {
     if (!showFinalScoreModal) {
-      setShowFinalScoreNumber(false);
-      setFinalScoreFillPercent(0);
       setFireworksBursts([]);
       return;
     }
-    const targetFill = Math.max(0, Math.min(100, (finalScore / 1000) * 100));
-    let fireworksInterval;
-    let pruneTimeout;
+    let intervalId;
+    let timeoutId;
     if (showFireworks) {
       setFireworksBursts([createRandomFirework(Date.now())]);
-      fireworksInterval = window.setInterval(() => {
-        const now = Date.now();
-        const nextBurst = createRandomFirework(now);
-        setFireworksBursts((prev) => [...prev, nextBurst]);
+      intervalId = window.setInterval(() => {
+        const next = createRandomFirework(Date.now());
+        setFireworksBursts((prev) => [...prev, next]);
         window.setTimeout(() => {
-          setFireworksBursts((prev) => prev.filter((burst) => burst.id !== nextBurst.id));
+          setFireworksBursts((prev) => prev.filter((b) => b.id !== next.id));
         }, 1800);
       }, 260);
-      pruneTimeout = window.setTimeout(() => {
-        setFireworksBursts([]);
-      }, 3600);
+      timeoutId = window.setTimeout(() => setFireworksBursts([]), 3600);
     }
-    const startTimeout = window.setTimeout(() => setFinalScoreFillPercent(targetFill), 40);
-    const revealTimeout = window.setTimeout(() => setShowFinalScoreNumber(true), 2000);
     return () => {
-      window.clearTimeout(startTimeout);
-      window.clearTimeout(revealTimeout);
-      if (fireworksInterval) window.clearInterval(fireworksInterval);
-      if (pruneTimeout) window.clearTimeout(pruneTimeout);
+      if (intervalId) window.clearInterval(intervalId);
+      if (timeoutId) window.clearTimeout(timeoutId);
     };
-  }, [showFinalScoreModal, finalScore, showFireworks]);
+  }, [showFinalScoreModal, showFireworks]);
 
   const dismissWelcomeModal = () => {
     setDismissedWelcomeModal(true);
@@ -235,44 +263,49 @@ export default function DailyPlay() {
   }, [showWelcomeModal]);
 
   const submitAttempt = () => {
-    if (!guess || !currentRound || !canSubmitTry) return;
-    const tryNumber = attempts.length + 1;
-    const distanceKm = haversineKm(
+    if (!guess || !currentRound || !canSubmitAttempt) return;
+    const attemptNumber = attempts.length + 1;
+    const distanceKm = haversineKm(guess.lat, guess.lon, currentRound.latitude, currentRound.longitude);
+    const direction = directionFromGuessToTarget(
       guess.lat,
       guess.lon,
       currentRound.latitude,
       currentRound.longitude
     );
-    const points = scoreForAttempt(tryNumber, distanceKm);
-    const base = baseScoreForTry(tryNumber);
-    const distancePenalty = Math.max(0, base - points);
-    const nextAttempts = [
-      ...attempts,
-      {
-        tryNumber,
-        guess,
-        distanceKm,
-        points,
-        base,
-        distancePenalty
-      }
-    ];
+    const nextAttempts = [...attempts, { tryNumber: attemptNumber, guess, distanceKm, direction }];
     setAttempts(nextAttempts);
     setGuess(null);
-    persist({
-      attempts: nextAttempts,
-      guess: null
-    });
+    persist({ attempts: nextAttempts, guess: null });
   };
 
   const shareSummary = useMemo(() => {
-    if (!finished || !currentRound || !bestAttempt) return "";
-    const emoji = emojiForScore(finalScore);
+    if (!finished || !closestAttempt) return "";
     const prettyDate = formatShareDate(challengeDate);
-    return summited
-      ? `nearestmountain.com/play\n${prettyDate}: ${finalScore}/1000 ${emoji}\nSUMMITED!`
-      : `nearestmountain.com/play\n${prettyDate}: ${finalScore}/1000 ${emoji}\nclosest summit attempt: ${closestAttempt?.distanceKm.toFixed(1) || "0.0"}km off`;
-  }, [finished, currentRound, closestAttempt, finalScore, challengeDate, summited]);
+    if (summited && summitAttempt) {
+      const attemptLabel = summitAttempt.tryNumber === 1 ? "attempt" : "attempts";
+      const emoji = summitEmojiForAttempts(summitAttempt.tryNumber);
+      return `nearestmountain.com/play\n${prettyDate}: SUMMITED in ${summitAttempt.tryNumber} ${attemptLabel} ${emoji}`;
+    }
+    return `nearestmountain.com/play\n${prettyDate}: Not summited\nclosest attempt: ${closestAttempt.distanceKm.toFixed(1)}km ${directionGlyph(closestAttempt.direction)}`;
+  }, [finished, challengeDate, summited, summitAttempt, closestAttempt]);
+  const feedbackMessage = (() => {
+    if (!latest || typeof latest.distanceKm !== "number") return "";
+
+    const latestBase = baseAttemptFeedbackMessage(latest.distanceKm, summited);
+    if (attempts.length < 2 || summited) return latestBase;
+
+    const prev = attempts[attempts.length - 2];
+    if (!prev || typeof prev.distanceKm !== "number") return latestBase;
+    const prevBase = baseAttemptFeedbackMessage(prev.distanceKm, false);
+
+    if (latestBase !== prevBase) return latestBase;
+
+    const alternates = [
+      "Keep climbing.",
+      "Eyes on the ridgeline."
+    ];
+    return alternates[attempts.length % 2];
+  })();
 
   const onShare = async () => {
     if (!shareSummary) return;
@@ -284,203 +317,32 @@ export default function DailyPlay() {
     }
   };
 
-  if (loading) {
-    return (
-      <main className="game-shell game-play game-play--state">
-        <div className="game-loading" aria-live="polite" aria-busy="true">
-          <div className="game-loading__spinner" />
-          <p className="game-loading__text">Loading daily mountain…</p>
-        </div>
-      </main>
-    );
-  }
-
-  if (error) {
-    return (
-      <main className="game-shell game-play game-play--state">
-        <div className="game-state-panel game-animate-in">
-          <p className="game-state-panel__error">{error}</p>
-        </div>
-      </main>
-    );
-  }
-
-  if (!currentRound) {
-    return (
-      <main className="game-shell game-play game-play--state">
-        <div className="game-state-panel game-animate-in">
-          <p>No daily mountain configured yet.</p>
-        </div>
-      </main>
-    );
-  }
+  if (loading) return <main className="game-shell game-play game-play--state"><div className="game-loading" aria-live="polite" aria-busy="true"><div className="game-loading__spinner" /><p className="game-loading__text">Loading daily mountain…</p></div></main>;
+  if (error) return <main className="game-shell game-play game-play--state"><div className="game-state-panel game-animate-in"><p className="game-state-panel__error">{error}</p></div></main>;
+  if (!currentRound) return <main className="game-shell game-play game-play--state"><div className="game-state-panel game-animate-in"><p>No daily mountain configured yet.</p></div></main>;
 
   return (
     <main className="game-shell game-play game-animate-in">
       <header className="game-hud" role="banner">
-        <div className="game-hud__brand">
-          <span className="game-hud__mark" aria-hidden>⛰</span>
-          <div className="game-hud__brand-text">
-            <h1 className="game-hud__title">Summit Attempt</h1>
-            <p className="game-hud__date">{formatChallengeDate(challengeDate)}</p>
-          </div>
-        </div>
-
-        <div className="game-round-track" role="list" aria-label="Attempts used">
-          {Array.from({ length: MAX_TRIES }, (_, p) => {
-            const done = p < attempts.length;
-            const current = !finished && p === attempts.length;
-            return (
-              <span
-                key={p}
-                className={[
-                  "game-round-dot",
-                  done && "game-round-dot--done",
-                  current && "game-round-dot--current"
-                ]
-                  .filter(Boolean)
-                  .join(" ")}
-                title={`Attempt ${p + 1}`}
-                role="listitem"
-              />
-            );
-          })}
-        </div>
-
-        <div className="game-hud__stats">
-          {finished ? <p className="game-hud__badge">Finished</p> : null}
-          <p className="game-hud__scoreline">
-            <span className="game-hud__label">Score</span>
-            <span className="game-hud__scoreval">
-              {finished ? finalScore : latest?.points || 0}
-              <span className="game-hud__scoremax"> / 1000</span>
-            </span>
-          </p>
-        </div>
+        <div className="game-hud__brand"><span className="game-hud__mark" aria-hidden>⛰</span><div className="game-hud__brand-text"><h1 className="game-hud__title">Summit Attempt</h1><p className="game-hud__date">{formatChallengeDate(challengeDate)}</p></div></div>
+        <div className="game-hud__stats"><p className="game-hud__scoreline"><span className="game-hud__label">Attempts</span><span className="game-hud__scoreval">{attempts.length}</span></p></div>
       </header>
 
       {showWelcomeModal ? (
-        <div className="game-welcome-backdrop" onClick={dismissWelcomeModal}>
-          <div
-            className="game-welcome-dialog"
-            onClick={(e) => e.stopPropagation()}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="daily-welcome-title"
-            aria-describedby="daily-welcome-content"
-          >
-            <div id="daily-welcome-content">
-              <h2 className="game-welcome-title" id="daily-welcome-title">
-                Summit Attempt Daily Challenge
-              </h2>
-              <p className="game-welcome-lead">
-                You have 5 attempts to pinpoint this mountain!
-              </p>
-              <p className="game-welcome-lead">
-                After each attempt, you will know how far off you were, and you can attempt again.
-                But you lose 25 points for each additional attempt.
-              </p>
-              <p className="game-welcome-lead">
-                You get up to 5 attempts unless you hit 1000 points early.
-              </p>
-            </div>
-            <div className="game-welcome-actions">
-              <button
-                type="button"
-                className="game-btn game-btn--primary game-btn--big"
-                onClick={dismissWelcomeModal}
-                autoFocus
-              >
-                Start
-              </button>
-            </div>
-          </div>
-        </div>
+        <div className="game-welcome-backdrop" onClick={dismissWelcomeModal}><div className="game-welcome-dialog" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true"><div><h2 className="game-welcome-title">Summit Attempt Daily Challenge</h2><p className="game-welcome-lead">You have unlimited attempts to pinpoint this mountain.</p><p className="game-welcome-lead">After each attempt, you will see both distance and direction.</p><p className="game-welcome-lead">The challenge: summit within {SUMMIT_DISTANCE_KM} km in as few attempts as possible.</p></div><div className="game-welcome-actions"><button type="button" className="game-btn game-btn--primary game-btn--big" onClick={dismissWelcomeModal} autoFocus>Start</button></div></div></div>
       ) : null}
 
       {finished && showFinalScoreModal ? (
-        <div
-          className="game-final-modal-backdrop"
-          onClick={() => setShowFinalScoreModal(false)}
-        >
-          {showFireworks ? (
-            <div className="game-fireworks-layer" aria-hidden>
-              {fireworksBursts.map((burst) => (
-                <span
-                  key={burst.id}
-                  className="game-firework"
-                  style={{
-                    left: `${burst.left}%`,
-                    top: `${burst.top}%`,
-                    animationDelay: `${burst.delayMs}ms`
-                  }}
-                />
-              ))}
-            </div>
-          ) : null}
-          <div
-            className="game-final-modal"
-            onClick={(e) => e.stopPropagation()}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="daily-final-score-title"
-          >
+        <div className="game-final-modal-backdrop" onClick={() => setShowFinalScoreModal(false)}>
+          {showFireworks ? <div className="game-fireworks-layer" aria-hidden>{fireworksBursts.map((burst) => <span key={burst.id} className="game-firework" style={{ left: `${burst.left}%`, top: `${burst.top}%`, animationDelay: `${burst.delayMs}ms` }} />)}</div> : null}
+          <div className="game-final-modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
             <p className="game-final-modal__eyebrow">Daily complete</p>
-            <h2 className="game-final-modal__title" id="daily-final-score-title">
-              {summited ? "You've summited today's mountain!" : "Final score"}
-            </h2>
+            <h2 className="game-final-modal__title">{summited ? "You've summited today's mountain!" : "Challenge complete"}</h2>
             <p className="game-final-modal__place">{currentRound.title}</p>
-            <a
-              className="game-btn game-btn--secondary game-map-link game-map-link--modal"
-              href={`https://www.google.com/maps?q=${currentRound.latitude},${currentRound.longitude}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              📍 Open in Google Maps
-            </a>
-            <div className="game-final-modal__meter" aria-hidden>
-              <div
-                className={`game-final-modal__meter-fill ${finalScoreTierClass}`}
-                style={{ width: `${finalScoreFillPercent}%` }}
-              />
-            </div>
-            {showFinalScoreNumber ? (
-              <p
-                className={`game-final-modal__score game-final-modal__score--visible ${finalScoreTierClass}`}
-              >
-                {finalScore}
-                <span className="game-final-modal__denominator"> / 1000</span>
-              </p>
-            ) : (
-              <p className="game-final-modal__score game-final-modal__score--hidden" aria-hidden>
-                0
-                <span className="game-final-modal__denominator"> / 1000</span>
-              </p>
-            )}
-            <p className="game-final-modal__distance">
-              Closest attempt: {closestAttempt?.distanceKm?.toFixed(1) || "0.0"} km off
-            </p>
-            {summited && summitAttemptNumber ? (
-              <p className="game-final-modal__distance">
-                It took you {summitAttemptNumber} {summitAttemptNumber === 1 ? "attempt" : "attempts"} to summit.
-              </p>
-            ) : null}
-            <div className="game-final-modal__actions">
-              <button
-                type="button"
-                className="game-btn game-btn--primary"
-                onClick={onShare}
-              >
-                Share
-              </button>
-              <button
-                type="button"
-                className="game-btn game-btn--secondary"
-                onClick={() => setShowFinalScoreModal(false)}
-              >
-                Close
-              </button>
-            </div>
+            <a className="game-btn game-btn--secondary game-map-link game-map-link--modal" href={`https://www.google.com/maps?q=${currentRound.latitude},${currentRound.longitude}`} target="_blank" rel="noopener noreferrer">📍 Open in Google Maps</a>
+            <p className="game-final-modal__distance">Closest attempt: {closestAttempt?.distanceKm?.toFixed(1) || "0.0"} km off</p>
+            {summited && summitAttempt ? <p className="game-final-modal__distance">It took you {summitAttempt.tryNumber} {summitAttempt.tryNumber === 1 ? "attempt" : "attempts"} to summit.</p> : null}
+            <div className="game-final-modal__actions"><button type="button" className="game-btn game-btn--primary" onClick={onShare}>Share</button><button type="button" className="game-btn game-btn--secondary" onClick={() => setShowFinalScoreModal(false)}>Close</button></div>
             {shareStatus ? <p className="game-share-status">{shareStatus}</p> : null}
           </div>
         </div>
@@ -488,126 +350,38 @@ export default function DailyPlay() {
 
       <div className="game-grid game-grid--play">
         <section className="game-photo game-card game-card--photo">
-          {currentRound.imageUrl ? (
-            <img src={currentRound.imageUrl} alt={currentRound.title || "Daily mountain"} />
-          ) : (
-            <div className="game-photo-empty">
-              <p>No image provided for this mountain.</p>
-            </div>
-          )}
-          {finished ? (
-            <div className="game-photo-title-row">
-              <div>
-                <h2>{currentRound.title}</h2>
-                <p className="game-ethics-note">
-                  Inspired to visit? Remember to{" "}
-                  <a
-                    href={LEAVE_NO_TRACE_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="game-ethics-link"
-                  >
-                    leave no trace
-                  </a>
-                  .
-                </p>
-              </div>
-              <a
-                className="game-btn game-btn--secondary game-map-link"
-                href={`https://www.google.com/maps?q=${currentRound.latitude},${currentRound.longitude}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                📍 Open in Google Maps
-              </a>
-            </div>
-          ) : null}
+          {currentRound.imageUrl ? <img src={currentRound.imageUrl} alt={currentRound.title || "Daily mountain"} /> : <div className="game-photo-empty"><p>No image provided for this mountain.</p></div>}
+          {finished ? <div className="game-photo-title-row"><div><h2>{currentRound.title}</h2><p className="game-ethics-note">Inspired to visit? Remember to <a href={LEAVE_NO_TRACE_URL} target="_blank" rel="noopener noreferrer" className="game-ethics-link">leave no trace</a>.</p></div><a className="game-btn game-btn--secondary game-map-link" href={`https://www.google.com/maps?q=${currentRound.latitude},${currentRound.longitude}`} target="_blank" rel="noopener noreferrer">📍 Open in Google Maps</a></div> : null}
           {currentRound.description ? <p>{currentRound.description}</p> : null}
           <div className="game-controls">
-            {!finished ? (
-              <p>
-                Attempt {Math.min(attempts.length + 1, MAX_TRIES)} of {MAX_TRIES} · {triesLeft} left
-              </p>
-            ) : null}
-            {latest ? (
-              <p className="game-distance-readout">
-                Last attempt
-                <span className="game-distance-value">
-                  {latest.distanceKm.toFixed(1)} km away ({latest.points} pts)
-                </span>
-              </p>
-            ) : (
-              <p>
-                After each attempt, you&apos;ll know the distance away, but not the direction. You can
-                keep refining for up to 5 attempts (or stop early if you hit 1000).
-              </p>
-            )}
+            {!finished ? <p>Attempt {attempts.length + 1}</p> : null}
+            {latest ? <p className="game-distance-readout">Last attempt<span className="game-distance-value">{latest.distanceKm.toFixed(1)} km<img src={`/arrows/${normalizeDirection(latest.direction)}.svg?v=2`} alt={normalizeDirection(latest.direction)} style={{ display: "inline-block", width: "0.6em", height: "0.6em", marginLeft: "0.2em", verticalAlign: "-0.08em", background: "transparent", boxShadow: "none", filter: "brightness(0) invert(1)" }} /></span></p> : <p>After each attempt, you&apos;ll know the distance and direction to the summit.</p>}
           </div>
         </section>
 
         <section className="game-map-section game-card game-card--map">
-          <InteractiveGuessMap
-            guess={mapGuess}
-            submitted={finished}
-            challenge={currentRound}
-            canPlaceGuess={canSubmitTry}
-            onGuessPlaced={(nextGuess) => setGuess(nextGuess)}
-          />
+          <InteractiveGuessMap guess={mapGuess} submitted={summited} challenge={currentRound} canPlaceGuess={canSubmitAttempt} onGuessPlaced={(nextGuess) => setGuess(nextGuess)} />
           <div className="game-controls">
-            {guess ? (
-              <p>
-                Attempt: {guess.lat}, {guess.lon}
-              </p>
-            ) : (
-              <p>
-                {finished
-                  ? "Daily complete."
-                  : "Click the map to place your attempt."}
-              </p>
-            )}
-            <button
-              type="button"
-              className="game-btn game-btn--primary game-btn--lock"
-              disabled={!guess || !canSubmitTry}
-              onClick={submitAttempt}
-            >
-              {finished
-                ? "Complete"
-                : `Submit attempt (max ${currentTryMax} pts)`}
-            </button>
+            {guess ? <p>Attempt: {guess.lat}, {guess.lon}</p> : <p>{finished ? "Daily complete." : "Click the map to place your attempt."}</p>}
+            <button type="button" className="game-btn game-btn--primary game-btn--lock" disabled={!guess || !canSubmitAttempt} onClick={submitAttempt}>{finished ? "Summited" : "Push for the Summit"}</button>
+            {feedbackMessage ? <p style={{ marginTop: 8, marginBottom: 0, color: "#94a3b8", fontSize: "0.9rem", fontStyle: "italic" }}>{feedbackMessage}</p> : null}
           </div>
         </section>
       </div>
 
       {attempts.length ? (
         <section className="game-result game-card game-card--summary">
-          <h3 className="game-card__head">Summit Attempts</h3>
+          <h3 className="game-card__head">Attempt history</h3>
           <ul className="game-breakdown-list" aria-label="Attempt results">
             {attempts.map((item) => (
               <li key={item.tryNumber} className="game-breakdown-list__row">
                 <span className="game-breakdown-list__round">A{item.tryNumber}</span>
-                <span className="game-breakdown-list__name">
-                  {item.distanceKm.toFixed(1)} km away
-                </span>
-                <span
-                  className={`game-breakdown-list__pts ${scoreTierClass(item.points)}`}
-                >
-                  {item.points}
-                  <span className="game-pts">pts</span>
-                </span>
+                <span className="game-breakdown-list__name">{item.distanceKm.toFixed(1)} km away</span>
+                <span className="game-breakdown-list__pts"><img src={`/arrows/${normalizeDirection(item.direction)}.svg?v=2`} alt={normalizeDirection(item.direction)} style={{ display: "inline-block", width: "0.6em", height: "0.6em", verticalAlign: "-0.08em", background: "transparent", boxShadow: "none", filter: "brightness(0) invert(1)" }} /></span>
               </li>
             ))}
           </ul>
-          {finished ? (
-            <div className="game-final-total-row">
-              <p className="game-final-total-line">
-                <strong>Best score</strong> {finalScore}/1000
-              </p>
-              <button type="button" className="game-btn game-btn--primary" onClick={onShare}>
-                Share
-              </button>
-            </div>
-          ) : null}
+          {finished ? <div className="game-final-total-row"><p className="game-final-total-line"><strong>Closest attempt</strong> {closestAttempt?.distanceKm?.toFixed(1) || "0.0"} km</p><button type="button" className="game-btn game-btn--primary" onClick={onShare}>Share</button></div> : null}
           {shareStatus ? <p className="game-share-status">{shareStatus}</p> : null}
         </section>
       ) : null}
