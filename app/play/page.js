@@ -935,12 +935,26 @@ function ClassicPlay() {
 }
 
 export default function PlayPage() {
-  const [mode, setMode] = useState("");
+  const [query, setQuery] = useState({ mode: "", testDateId: "", ready: false });
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const urlMode = new URLSearchParams(window.location.search).get("mode") || "";
-    setMode(urlMode.toLowerCase());
+    const params = new URLSearchParams(window.location.search);
+    setQuery({
+      mode: (params.get("mode") || "").toLowerCase(),
+      testDateId: (params.get("id") || "").trim(),
+      ready: true
+    });
   }, []);
-  if (mode === "classic") return <ClassicPlay />;
-  return <DailyPlay />;
+  if (!query.ready) {
+    return (
+      <main className="game-shell game-play game-play--state">
+        <div className="game-loading" aria-live="polite" aria-busy="true">
+          <div className="game-loading__spinner" />
+          <p className="game-loading__text">Loading…</p>
+        </div>
+      </main>
+    );
+  }
+  if (query.mode === "classic") return <ClassicPlay />;
+  return <DailyPlay testDateId={query.testDateId} />;
 }

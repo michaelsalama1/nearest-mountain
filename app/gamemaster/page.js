@@ -214,7 +214,17 @@ export default function GamemasterPage() {
               className="gm-round-card"
             >
               <div className="gm-round-header">
-                <strong>{day.date}</strong>
+                <div className="gm-round-header__left">
+                  <strong>{day.date}</strong>
+                  <a
+                    className="gm-test-link"
+                    href={`/play?id=${encodeURIComponent(day.date)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Test in /play
+                  </a>
+                </div>
                 <span className="gm-drag-hint">1 round</span>
               </div>
 

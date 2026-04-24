@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 
 const InteractiveGuessMap = dynamic(() => import("./InteractiveGuessMap"), { ssr: false });
 
-const SUMMIT_DISTANCE_KM = 5;
+const SUMMIT_DISTANCE_KM = 2.5;
 const LEAVE_NO_TRACE_URL =
   "https://lnt.org/why/7-principles/?gad_source=1&gad_campaignid=18565554164&gbraid=0AAAAADFQyoq7FQPJLmdZkhr4lmfpKTemO&gclid=EAIaIQobChMItcv3-4GHlAMVvzIIBR07YR2DEAAYAiAAEgK8B_D_BwE";
 const DAILY_WELCOME_DONE_KEY = "nm_daily_welcome_done";
@@ -129,7 +129,7 @@ function createRandomFirework(idSeed) {
   };
 }
 
-export default function DailyPlay() {
+export default function DailyPlay({ testDateId = "" }) {
   const [challenge, setChallenge] = useState(null);
   const [challengeDate, setChallengeDate] = useState("");
   const [loading, setLoading] = useState(true);
@@ -149,8 +149,10 @@ export default function DailyPlay() {
     async function init() {
       setLoading(true);
       setError("");
+      const trimmed = (testDateId || "").trim();
+      const q = trimmed ? `?date=${encodeURIComponent(trimmed)}` : "";
       try {
-        const res = await fetch("/api/game/daily", { cache: "no-store" });
+        const res = await fetch(`/api/game/daily${q}`, { cache: "no-store" });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Failed to load challenge");
         if (!cancelled) {
@@ -167,7 +169,7 @@ export default function DailyPlay() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [testDateId]);
 
   const currentRound = challenge?.rounds?.[0] || null;
   const storageKey = challengeDate ? `mountain-guessr:daily:${challengeDate}` : "";
@@ -324,12 +326,12 @@ export default function DailyPlay() {
   return (
     <main className="game-shell game-play game-animate-in">
       <header className="game-hud" role="banner">
-        <div className="game-hud__brand"><span className="game-hud__mark" aria-hidden>⛰</span><div className="game-hud__brand-text"><h1 className="game-hud__title">Summit Attempt</h1><p className="game-hud__date">{formatChallengeDate(challengeDate)}</p></div></div>
+        <div className="game-hud__brand"><span className="game-hud__mark" aria-hidden>⛰</span><div className="game-hud__brand-text"><h1 className="game-hud__title">Summit Attempt</h1><p className="game-hud__date">{formatChallengeDate(challengeDate)}</p>{testDateId ? <p className="game-hud__preview">Preview (gamemaster test link)</p> : null}</div></div>
         <div className="game-hud__stats"><p className="game-hud__scoreline"><span className="game-hud__label">Attempts</span><span className="game-hud__scoreval">{attempts.length}</span></p></div>
       </header>
 
       {showWelcomeModal ? (
-        <div className="game-welcome-backdrop" onClick={dismissWelcomeModal}><div className="game-welcome-dialog" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true"><div><h2 className="game-welcome-title">Summit Attempt Daily Challenge</h2><p className="game-welcome-lead">You have unlimited attempts to pinpoint this mountain.</p><p className="game-welcome-lead">After each attempt, you will see both distance and direction.</p><p className="game-welcome-lead">The challenge: summit within {SUMMIT_DISTANCE_KM} km in as few attempts as possible.</p></div><div className="game-welcome-actions"><button type="button" className="game-btn game-btn--primary game-btn--big" onClick={dismissWelcomeModal} autoFocus>Start</button></div></div></div>
+        <div className="game-welcome-backdrop" onClick={dismissWelcomeModal}><div className="game-welcome-dialog" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true"><div><h2 className="game-welcome-title">Summit Attempt Daily Challenge</h2><p className="game-welcome-lead">You have unlimited attempts to pinpoint this mountain.</p><p className="game-welcome-lead">After each attempt, you will see both distance and direction.</p><p className="game-welcome-lead">You summit when a guess is within {SUMMIT_DISTANCE_KM} km of the true peak. Get there in as few attempts as you can.</p></div><div className="game-welcome-actions"><button type="button" className="game-btn game-btn--primary game-btn--big" onClick={dismissWelcomeModal} autoFocus>Start</button></div></div></div>
       ) : null}
 
       {finished && showFinalScoreModal ? (
@@ -355,7 +357,7 @@ export default function DailyPlay() {
           {currentRound.description ? <p>{currentRound.description}</p> : null}
           <div className="game-controls">
             {!finished ? <p>Attempt {attempts.length + 1}</p> : null}
-            {latest ? <p className="game-distance-readout">Last attempt<span className="game-distance-value">{latest.distanceKm.toFixed(1)} km<img src={`/arrows/${normalizeDirection(latest.direction)}.svg?v=2`} alt={normalizeDirection(latest.direction)} style={{ display: "inline-block", width: "0.6em", height: "0.6em", marginLeft: "0.2em", verticalAlign: "-0.08em", background: "transparent", boxShadow: "none", filter: "brightness(0) invert(1)" }} /></span></p> : <p>After each attempt, you&apos;ll know the distance and direction to the summit.</p>}
+            {latest ? <p className="game-distance-readout">Last attempt<span className="game-distance-value">{latest.distanceKm.toFixed(1)} km<img src={`/arrows/${normalizeDirection(latest.direction)}.svg?v=2`} alt={normalizeDirection(latest.direction)} style={{ display: "inline-block", width: "0.6em", height: "0.6em", marginLeft: "0.2em", verticalAlign: "-0.08em", background: "transparent", boxShadow: "none", filter: "brightness(0) invert(1)" }} /></span></p> : <p>Each attempt shows distance and direction. A summit is any guess within {SUMMIT_DISTANCE_KM} km of the peak.</p>}
           </div>
         </section>
 
