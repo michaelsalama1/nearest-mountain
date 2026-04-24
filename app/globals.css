@@ -171,19 +171,26 @@ p.your-loc{
 
 .coordinate-input-inline {
   display: flex;
-  gap: 10px; /* Space between the input fields */
+  gap: 10px;
   justify-content: space-between;
+}
+
+.coordinate-pair-label {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 6px;
+  color: inherit;
 }
 
 .coordinate-input-inline input {
   flex: 1;
+  min-width: 0;
   font-size: 16px;
-  width: 10px;
-  height:30px;
-  margin-left: 5px;
+  width: 100%;
+  min-height: 32px;
   border-radius: 4px;
-  padding:2px;
-  text-align:center;
+  padding: 6px 8px;
+  text-align: start;
 }
 
 .error-code{
@@ -199,6 +206,75 @@ p.your-loc{
   cursor: pointer;
   border: none;
   border-radius: 5px;
+}
+
+/* Home: CTA to /play — Bungee like game title, under main card */
+.summit-daily-cta-wrap {
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  justify-content: center;
+  padding: 0 4px 4px;
+}
+
+.summit-daily-cta__link {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4em 0.65em;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 16px 20px 16px 22px;
+  font-family: var(--font-nm-display), Impact, "Arial Black", system-ui, sans-serif;
+  font-weight: 400;
+  font-size: clamp(0.7rem, 1.4vw + 0.4rem, 0.9rem);
+  line-height: 1.2;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-decoration: none;
+  text-wrap: balance;
+  text-align: center;
+  color: #3b3b3b;
+  background: #ffffffd9;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, color 0.15s ease;
+}
+
+.summit-daily-cta__link:hover {
+  color: #2a2a2a;
+  text-decoration: none;
+  background: #fff;
+  border-color: #d0d0d0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.summit-daily-cta__link:focus-visible {
+  outline: 2px solid #94a3b8;
+  outline-offset: 2px;
+}
+
+.summit-daily-cta__link:active {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.summit-daily-cta__label {
+  flex: 1 1 14ch;
+  min-width: min(100%, 14ch);
+  max-width: 36ch;
+}
+
+.summit-daily-cta__arrow {
+  flex-shrink: 0;
+  font-family: var(--font-nm-sans), var(--font-geist-sans), system-ui, sans-serif;
+  font-size: 1.25em;
+  font-weight: 600;
+  line-height: 1;
+  color: #4a4a4a;
 }
 
 .about-overlay {

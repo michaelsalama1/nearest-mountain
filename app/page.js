@@ -3,7 +3,29 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation"; // Import useRouter
 import Head from "next/head";
+import Link from "next/link";
 
+/** Browsers can hang on the default (often infinite) lock unless timeout / maxAge are set. */
+const GEO_OPTIONS = {
+    enableHighAccuracy: false,
+    maximumAge: 5 * 60 * 1000,
+    timeout: 12_000,
+};
+
+/** e.g. "46.034291, -110.329524" → { lat, lon } or null */
+function parseLatLonPair(text) {
+    if (typeof text !== "string") return null;
+    const t = text.trim();
+    if (!t) return null;
+    const i = t.indexOf(",");
+    if (i === -1) return null;
+    if (t.slice(i + 1).includes(",")) return null;
+    const lat = parseFloat(t.slice(0, i).trim());
+    const lon = parseFloat(t.slice(i + 1).trim());
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+    if (Math.abs(lat) > 90 || Math.abs(lon) > 180) return null;
+    return { lat, lon };
+}
 
 export default function Home() {
     const router = useRouter();
@@ -12,8 +34,8 @@ export default function Home() {
     const [nearestMountains, setNearestMountains] = useState(null);
     const [elevation, setElevation] = useState(500);
     const [showCoordinateInput, setShowCoordinateInput] = useState(false);
-    const [newLatitude, setNewLatitude] = useState(latitude || "");
-    const [newLongitude, setNewLongitude] = useState(longitude || "");
+    const [manualCoords, setManualCoords] = useState("");
+    const [coordError, setCoordError] = useState("");
     const [locationError, setLocationError] = useState(false);
     const [showAbout, setShowAbout] = useState(false);
     const [currentMountainIndex, setCurrentMountainIndex] = useState(0);
@@ -25,62 +47,62 @@ export default function Home() {
         const lon = params.get("lon");
         const elev = params.get("e");
         const index = params.get("i");
-            
+
+        let geoTimeoutId;
+
         if (lat && lon) {
             setLatitude(parseFloat(lat));
             setLongitude(parseFloat(lon));
-        } else {
-            if ("geolocation" in navigator) {
-                const geoTimeout = setTimeout(() => {
-                    setLocationError(true);
-                    setShowCoordinateInput(true);
-                }, 10000);
-    
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        clearTimeout(geoTimeout);
-                        setLatitude(position.coords.latitude);
-                        setLongitude(position.coords.longitude);
-                        setLocationError(false);
-                    },
-                    () => {
-                        clearTimeout(geoTimeout);
-                        setLocationError(true);
-                        setShowCoordinateInput(true);
-                    }
-                );
-
-            } else {
+        } else if ("geolocation" in navigator) {
+            // Backup if the browser is slow to invoke callbacks (e.g. heavy timer throttling in a background tab).
+            geoTimeoutId = setTimeout(() => {
                 setLocationError(true);
                 setShowCoordinateInput(true);
+            }, GEO_OPTIONS.timeout + 3_000);
 
-            }
-
-
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    clearTimeout(geoTimeoutId);
+                    setLatitude(position.coords.latitude);
+                    setLongitude(position.coords.longitude);
+                    setLocationError(false);
+                },
+                () => {
+                    clearTimeout(geoTimeoutId);
+                    setLocationError(true);
+                    setShowCoordinateInput(true);
+                },
+                GEO_OPTIONS
+            );
+        } else {
+            setLocationError(true);
+            setShowCoordinateInput(true);
         }
 
-    
-        if (elev) setElevation(parseInt(elev));
-        if (index) setCurrentMountainIndex(parseInt(index));
+        if (elev) setElevation(parseInt(elev, 10));
+        if (index) setCurrentMountainIndex(parseInt(index, 10));
         console.log(currentMountainIndex);
+
+        return () => {
+            if (geoTimeoutId) clearTimeout(geoTimeoutId);
+        };
     }, []); // Only run once when the component mounts
     
     
     useEffect(() => {
-        if ((latitude || newLatitude) && (longitude || newLongitude)) {
-            const lat = newLatitude || latitude;
-            const lon = newLongitude || longitude;
-            fetch(`/api/nearestMountain?lat=${lat}&lon=${lon}&minElevation=${elevation}`)
-                .then((res) => res.json())
-                .then((data) => {
-                    setNearestMountains(data);
-                    // If mountains are fetched successfully, update the URL with the index (currentMountainIndex)
-                    console.log('a: '+currentMountainIndex);
-                    updateURL(lat, lon, elevation, currentMountainIndex);
-                })
-                .catch((error) => console.error("Error fetching data:", error));
-        }
-    }, [latitude, longitude, elevation, newLatitude, newLongitude]); // This effect is triggered when coordinates or elevation changes
+        if (latitude == null || longitude == null) return;
+        const lat = Number(latitude);
+        const lon = Number(longitude);
+        fetch(`/api/nearestMountain?lat=${lat}&lon=${lon}&minElevation=${elevation}`)
+            .then((res) => res.json())
+            .then((data) => {
+                setNearestMountains(data);
+                // If mountains are fetched successfully, update the URL with the index (currentMountainIndex)
+                console.log("a: " + currentMountainIndex);
+                updateURL(lat, lon, elevation, currentMountainIndex);
+            })
+            .catch((error) => console.error("Error fetching data:", error));
+    }, [latitude, longitude, elevation]);
     
     
 
@@ -129,22 +151,6 @@ export default function Home() {
     }, []); */
     
 
-    useEffect(() => {
-        if ((latitude || newLatitude) && (longitude || newLongitude)) {
-            const lat = newLatitude || latitude;
-            const lon = newLongitude || longitude;
-            fetch(`/api/nearestMountain?lat=${lat}&lon=${lon}&minElevation=${elevation}`)
-                .then((res) => res.json())
-                .then((data) => {
-                    setNearestMountains(data);
-                   // setCurrentMountainIndex(0); // Reset slider position
-                })
-                .catch((error) => console.error("Error fetching data:", error));
-        }
-    }, [latitude, longitude, elevation, newLatitude, newLongitude]);
-
-    
-
     const handleElevationChange = (event) => {
         const newElevation = event.target.value;
         setElevation(newElevation);
@@ -153,10 +159,17 @@ export default function Home() {
 
     const handleCoordinateSubmit = (event) => {
         event.preventDefault();
-        setLatitude(parseFloat(event.target.latitude.value));
-        setLongitude(parseFloat(event.target.longitude.value));
+        const parsed = parseLatLonPair(manualCoords);
+        if (!parsed) {
+            setCoordError("Use two numbers: latitude, longitude (e.g. 46.034291, -110.329524).");
+            return;
+        }
+        setCoordError("");
+        setLatitude(parsed.lat);
+        setLongitude(parsed.lon);
+        setLocationError(false);
         setShowCoordinateInput(false);
-        updateURL(event.target.latitude.value, event.target.longitude.value, elevation, currentMountainIndex);
+        updateURL(parsed.lat, parsed.lon, elevation, currentMountainIndex);
     };
 
     const handleNext = () => {
@@ -185,7 +198,7 @@ export default function Home() {
     return (
         <div className="full-container">
             <div className="app-container">
-                <h1>Summit Attempt &#127956;</h1>
+                <h1>Nearest Mountain &#127956;</h1>
                 {latitude && longitude ? (
                     <div className="location">
                         <p className="your-loc">
@@ -193,7 +206,12 @@ export default function Home() {
                         </p>
                         {!showCoordinateInput && (
                             <button
-                                onClick={() => setShowCoordinateInput(true)}
+                                type="button"
+                                onClick={() => {
+                                    setManualCoords(`${latitude}, ${longitude}`);
+                                    setCoordError("");
+                                    setShowCoordinateInput(true);
+                                }}
                                 className="change-coordinates-button"
                             >
                                 Change Coordinates
@@ -212,26 +230,30 @@ export default function Home() {
 
                 {showCoordinateInput && (
                     <form onSubmit={handleCoordinateSubmit} className="coordinate-input-form">
+                        <label className="coordinate-pair-label" htmlFor="coordinates">
+                            Coordinates
+                        </label>
                         <div className="coordinate-input-inline">
                             <input
-                                type="number"
-                                id="latitude"
-                                value={newLatitude}
-                                onChange={(e) => setNewLatitude(e.target.value)}
-                                step="any"
-                                placeholder="latitude"
-                                required
-                            />
-                            <input
-                                type="number"
-                                id="longitude"
-                                value={newLongitude}
-                                onChange={(e) => setNewLongitude(e.target.value)}
-                                step="any"
-                                placeholder="longitude"
-                                required
+                                type="text"
+                                id="coordinates"
+                                name="coordinates"
+                                value={manualCoords}
+                                onChange={(e) => {
+                                    setManualCoords(e.target.value);
+                                    setCoordError("");
+                                }}
+                                autoComplete="off"
+                                inputMode="decimal"
+                                placeholder="46.034291, -110.329524"
+                                className="coordinate-pair-input"
                             />
                         </div>
+                        {coordError ? (
+                            <p id="coord-parse-error" className="error-code" role="alert">
+                                {coordError}
+                            </p>
+                        ) : null}
                         <button type="submit" className="submit-coordinates-button">
                             Go &#x1f4cd;
                         </button>
@@ -282,12 +304,23 @@ export default function Home() {
                         <button onClick={generateRandomRange} className="random-peak-button">
                             &#9968; Random Mountain Range &#9968;
                         </button>
-                        
                     </div>
                 ) : (
                     <p>Loading nearest mountain...</p>
                 )}
             </div>
+
+            {nearestMountains ? (
+                <div className="summit-daily-cta-wrap">
+                    <Link href="/play" className="summit-daily-cta__link">
+                        <span className="summit-daily-cta__label">play the Daily Challenge</span>
+                        <span className="summit-daily-cta__arrow" aria-hidden="true">
+                            &rarr;
+                        </span>
+                    </Link>
+                </div>
+            ) : null}
+
             <div className="about">
     <button onClick={() => setShowAbout(true)}>
         about
