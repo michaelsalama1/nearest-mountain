@@ -272,7 +272,7 @@ export default function DailyPlay() {
   const shareSummary = useMemo(() => {
     if (!finished || !currentRound || !finalAttempt) return "";
     const emoji = emojiForScore(finalScore);
-    return `nearestmountain.com/play?mode=daily\nFinal score: ${finalScore}/1000 ${emoji}`;
+    return `nearestmountain.com/play\nFinal score: ${finalScore}/1000 ${emoji}`;
   }, [finished, currentRound, finalAttempt, finalScore]);
 
   const onShare = async () => {
@@ -372,14 +372,14 @@ export default function DailyPlay() {
           >
             <div id="daily-welcome-content">
               <h2 className="game-welcome-title" id="daily-welcome-title">
-                How to Play
+                Nearest Mountain Daily Challenge
               </h2>
               <p className="game-welcome-lead">
                 You have 5 guesses to pinpoint this mountain!
               </p>
               <p className="game-welcome-lead">
                 After each guess, you will know how far off you were, and you will have the option
-                to guess again. But you lose five points for each additional guess.
+                to guess again. But you lose 50 points for each additional guess.
               </p>
               <p className="game-welcome-lead">
                 So after each guess, you can lock it in and share with friends, or guess again!
@@ -456,6 +456,9 @@ export default function DailyPlay() {
                 <span className="game-final-modal__denominator"> / 1000</span>
               </p>
             )}
+            <p className="game-final-modal__distance">
+              Final distance: {finalAttempt?.distanceKm?.toFixed(1) || "0.0"} km off
+            </p>
             <div className="game-final-modal__actions">
               <button
                 type="button"

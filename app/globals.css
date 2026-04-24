@@ -1329,6 +1329,13 @@ a.game-btn {
   font-weight: 700;
 }
 
+.game-final-modal__distance {
+  margin: 8px 0 0;
+  color: #cbd5e1;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
 .game-final-modal__actions {
   margin-top: 20px;
   display: flex;
