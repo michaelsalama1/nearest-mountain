@@ -7,77 +7,86 @@ function todayIso() {
   return getGameCalendarDateYMD();
 }
 
+function addDays(isoDate, amount) {
+  const date = new Date(`${isoDate}T00:00:00`);
+  date.setDate(date.getDate() + amount);
+  return date.toISOString().slice(0, 10);
+}
+
 export default function GamemasterPage() {
   const createEmptyRound = () => ({
     title: "",
     description: "",
-    hint: "",
     imageUrl: "",
-    imageMode: "url",
     latLon: "",
     latitude: "",
     longitude: ""
   });
 
+  const createEmptyDayEntry = (date) => ({
+    date,
+    round: createEmptyRound()
+  });
+
+  const buildFiveDayWindow = (startDate) =>
+    Array.from({ length: 5 }, (_, i) => createEmptyDayEntry(addDays(startDate, i)));
+
   const [form, setForm] = useState({
     key: "",
-    date: todayIso(),
-    rounds: Array.from({ length: 5 }, createEmptyRound)
+    startDate: todayIso(),
+    days: buildFiveDayWindow(todayIso())
   });
   const [unlocked, setUnlocked] = useState(false);
-  const [dragIndex, setDragIndex] = useState(null);
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     async function loadExisting() {
-      const res = await fetch(`/api/game/challenges?date=${form.date}`, {
-        cache: "no-store"
-      });
-      let data = {};
-      try {
-        data = await res.json();
-      } catch {
-        data = {};
-      }
-      if (!res.ok) {
-        setStatus(data.error || "Failed to load challenge for selected date.");
-        return;
-      }
-      const incomingRounds = data.challenge?.rounds || [];
-      const paddedRounds = Array.from({ length: 5 }, (_, index) =>
-        incomingRounds[index]
-          ? {
-              ...incomingRounds[index],
-              hint: incomingRounds[index].hint ?? "",
-              imageMode: "url",
+      const dates = Array.from({ length: 5 }, (_, i) => addDays(form.startDate, i));
+      const responses = await Promise.all(
+        dates.map(async (date) => {
+          const res = await fetch(`/api/game/challenges?date=${date}`, { cache: "no-store" });
+          let data = {};
+          try {
+            data = await res.json();
+          } catch {
+            data = {};
+          }
+          if (!res.ok) {
+            return { date, round: createEmptyRound(), error: data.error || `Failed to load ${date}` };
+          }
+          const firstRound = data.challenge?.rounds?.[0];
+          if (!firstRound) return { date, round: createEmptyRound() };
+          return {
+            date,
+            round: {
+              ...firstRound,
               latLon:
-                incomingRounds[index].latitude !== "" &&
-                incomingRounds[index].longitude !== ""
-                  ? `${incomingRounds[index].latitude}, ${incomingRounds[index].longitude}`
+                firstRound.latitude !== "" && firstRound.longitude !== ""
+                  ? `${firstRound.latitude}, ${firstRound.longitude}`
                   : ""
             }
-          : createEmptyRound()
+          };
+        })
       );
 
-      setForm((prev) => ({
-        ...prev,
-        rounds: paddedRounds
-      }));
-      setStatus("");
+      const nextDays = responses.map((item) => ({ date: item.date, round: item.round }));
+      const firstError = responses.find((item) => item.error)?.error;
+      setForm((prev) => ({ ...prev, days: nextDays }));
+      setStatus(firstError || "");
     }
     loadExisting();
-  }, [form.date]);
+  }, [form.startDate]);
 
   const setField = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  const setRoundField = (index, field, value) => {
+  const setRoundField = (dayIndex, field, value) => {
     setForm((prev) => ({
       ...prev,
-      rounds: prev.rounds.map((round, roundIndex) =>
-        roundIndex === index ? { ...round, [field]: value } : round
+      days: prev.days.map((day, index) =>
+        index === dayIndex ? { ...day, round: { ...day.round, [field]: value } } : day
       )
     }));
   };
@@ -97,30 +106,6 @@ export default function GamemasterPage() {
     return { parsedLat, parsedLon };
   };
 
-  const handleUpload = (event, roundIndex) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      setRoundField(roundIndex, "imageUrl", reader.result);
-      setStatus(`Image uploaded locally for round ${roundIndex + 1}.`);
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const onDragStart = (index) => setDragIndex(index);
-
-  const onDrop = (targetIndex) => {
-    if (dragIndex === null || dragIndex === targetIndex) return;
-    setForm((prev) => {
-      const nextRounds = [...prev.rounds];
-      const [moved] = nextRounds.splice(dragIndex, 1);
-      nextRounds.splice(targetIndex, 0, moved);
-      return { ...prev, rounds: nextRounds };
-    });
-    setDragIndex(null);
-  };
-
   const onSubmit = async (event) => {
     event.preventDefault();
     if (!unlocked) {
@@ -130,35 +115,35 @@ export default function GamemasterPage() {
     setLoading(true);
     setStatus("");
     try {
-      const normalizedRounds = form.rounds.map((round, index) => {
-        const { parsedLat, parsedLon } = parseLatLonInput(round.latLon, index + 1);
-        return {
-          ...round,
-          latitude: parsedLat,
-          longitude: parsedLon,
-          hint: round.hint != null ? String(round.hint) : ""
+      for (const day of form.days) {
+        const round = day.round;
+        const { parsedLat, parsedLon } = parseLatLonInput(round.latLon, day.date);
+        const payload = {
+          key: form.key,
+          date: day.date,
+          rounds: [
+            {
+              ...round,
+              latitude: parsedLat,
+              longitude: parsedLon
+            }
+          ]
         };
-      });
 
-      const payload = {
-        ...form,
-        rounds: normalizedRounds
-      };
-
-      const res = await fetch("/api/game/challenges", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-      let data = {};
-      try {
-        data = await res.json();
-      } catch {
-        data = {};
+        const res = await fetch("/api/game/challenges", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        let data = {};
+        try {
+          data = await res.json();
+        } catch {
+          data = {};
+        }
+        if (!res.ok) throw new Error(data.error || `Failed to save challenge for ${day.date}`);
       }
-      if (!res.ok) throw new Error(data.error || "Failed to save challenge");
-      setForm(payload);
-      setStatus(`Saved challenge for ${form.date}.`);
+      setStatus(`Saved 5 days starting ${form.startDate}.`);
     } catch (e) {
       setStatus(e.message);
     } finally {
@@ -169,7 +154,7 @@ export default function GamemasterPage() {
   return (
     <main className="gamemaster-shell">
       <h1>Gamemaster Dashboard</h1>
-      <p>Create/edit all 5 rounds for the daily challenge shown on /play.</p>
+      <p>Create/edit one round per day. This editor shows 5 days at a time.</p>
 
       <form className="gamemaster-form" onSubmit={onSubmit}>
         <label>
@@ -191,18 +176,8 @@ export default function GamemasterPage() {
           </button>
         ) : (
           <>
-            <label>
-              Date
-              <input
-                type="date"
-                value={form.date}
-                onChange={(e) => setField("date", e.target.value)}
-                required
-              />
-            </label>
-
             <button type="submit" disabled={loading}>
-              {loading ? "Saving..." : "Save Challenge"}
+              {loading ? "Saving..." : "Save 5 Days"}
             </button>
           </>
         )}
@@ -211,100 +186,84 @@ export default function GamemasterPage() {
       {status ? <p className="gamemaster-status">{status}</p> : null}
 
       {unlocked ? (
+        <>
+          <div className="gm-window-nav">
+            <button
+              type="button"
+              onClick={() => setField("startDate", addDays(form.startDate, -5))}
+              disabled={loading}
+            >
+              ← Previous 5 days
+            </button>
+            <strong>
+              {form.startDate} to {addDays(form.startDate, 4)}
+            </strong>
+            <button
+              type="button"
+              onClick={() => setField("startDate", addDays(form.startDate, 5))}
+              disabled={loading}
+            >
+              Next 5 days →
+            </button>
+          </div>
+
         <div className="gm-rounds-stack">
-          {form.rounds.map((round, index) => (
+          {form.days.map((day, index) => (
             <div
-              key={`round-card-${index}`}
+              key={`day-card-${day.date}`}
               className="gm-round-card"
-              draggable
-              onDragStart={() => onDragStart(index)}
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={() => onDrop(index)}
             >
               <div className="gm-round-header">
-                <strong>Round {index + 1}</strong>
-                <span className="gm-drag-hint">Drag to reorder</span>
+                <strong>{day.date}</strong>
+                <span className="gm-drag-hint">1 round</span>
               </div>
 
               <div className="gm-round-fields">
                 <input
                   type="text"
-                  value={round.title}
+                  value={day.round.title}
                   onChange={(e) => setRoundField(index, "title", e.target.value)}
                   placeholder="Title"
-                  aria-label={`Round ${index + 1} title`}
+                  aria-label={`${day.date} title`}
                   required
                 />
 
                 <input
                   type="text"
-                  value={round.description}
+                  value={day.round.description}
                   onChange={(e) => setRoundField(index, "description", e.target.value)}
                   placeholder="Description"
-                  aria-label={`Round ${index + 1} description`}
+                  aria-label={`${day.date} description`}
+                />
+
+                <input
+                  type="url"
+                  value={day.round.imageUrl}
+                  onChange={(e) => setRoundField(index, "imageUrl", e.target.value)}
+                  placeholder="Image URL"
+                  aria-label={`${day.date} image URL`}
                 />
 
                 <input
                   type="text"
-                  value={round.hint}
-                  onChange={(e) => setRoundField(index, "hint", e.target.value)}
-                  placeholder="Hint (optional) — multiplies round weight (1,1,2,3,3) by 0.75 if used"
-                  aria-label={`Round ${index + 1} hint`}
-                />
-
-                <div className="round-tabs">
-                  <button
-                    type="button"
-                    className={round.imageMode === "url" ? "active" : ""}
-                    onClick={() => setRoundField(index, "imageMode", "url")}
-                  >
-                    URL
-                  </button>
-                  <button
-                    type="button"
-                    className={round.imageMode === "upload" ? "active" : ""}
-                    onClick={() => setRoundField(index, "imageMode", "upload")}
-                  >
-                    Upload
-                  </button>
-                </div>
-
-                {round.imageMode === "url" ? (
-                  <input
-                    type="url"
-                    value={round.imageUrl}
-                    onChange={(e) => setRoundField(index, "imageUrl", e.target.value)}
-                    placeholder="Image URL"
-                    aria-label={`Round ${index + 1} image URL`}
-                  />
-                ) : (
-                  <input
-                    type="file"
-                    accept="image/*"
-                    aria-label={`Round ${index + 1} upload image`}
-                    onChange={(e) => handleUpload(e, index)}
-                  />
-                )}
-
-                <input
-                  type="text"
-                  value={round.latLon}
+                  value={day.round.latLon}
                   onChange={(e) => setRoundField(index, "latLon", e.target.value)}
                   placeholder="Lat / Long (e.g. 37.09426, -118.514455)"
-                  aria-label={`Round ${index + 1} latitude longitude`}
+                  aria-label={`${day.date} latitude longitude`}
                   required
                 />
 
               </div>
 
-              {round.imageUrl ? (
+              {day.round.imageUrl ? (
                 <div className="gamemaster-preview">
-                  <img src={round.imageUrl} alt={`Round ${index + 1} preview`} />
+                  <img src={day.round.imageUrl} alt={`${day.date} preview`} />
                 </div>
               ) : null}
             </div>
           ))}
         </div>
+        </>
       ) : null}
     </main>
   );

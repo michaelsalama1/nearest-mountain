@@ -150,6 +150,7 @@ export default function DailyPlay() {
   const canSubmitTry = !finished;
   const currentTryMax = baseScoreForTry(attempts.length + 1);
   const showFireworks = finished && showFinalScoreModal && finalScore > 950;
+  const finalScoreTierClass = scoreTierClass(finalScore);
   const showWelcomeModal =
     !loading &&
     !error &&
@@ -279,7 +280,7 @@ export default function DailyPlay() {
     if (!shareSummary) return;
     try {
       await navigator.clipboard.writeText(shareSummary);
-      setShareStatus("Copied results to clipboard.");
+      setShareStatus("Copied to clipboard");
     } catch {
       setShareStatus("Could not copy automatically.");
     }
@@ -441,12 +442,14 @@ export default function DailyPlay() {
             </a>
             <div className="game-final-modal__meter" aria-hidden>
               <div
-                className="game-final-modal__meter-fill"
+                className={`game-final-modal__meter-fill ${finalScoreTierClass}`}
                 style={{ width: `${finalScoreFillPercent}%` }}
               />
             </div>
             {showFinalScoreNumber ? (
-              <p className="game-final-modal__score game-final-modal__score--visible">
+              <p
+                className={`game-final-modal__score game-final-modal__score--visible ${finalScoreTierClass}`}
+              >
                 {finalScore}
                 <span className="game-final-modal__denominator"> / 1000</span>
               </p>
@@ -475,6 +478,7 @@ export default function DailyPlay() {
                 Close
               </button>
             </div>
+            {shareStatus ? <p className="game-share-status">{shareStatus}</p> : null}
           </div>
         </div>
       ) : null}

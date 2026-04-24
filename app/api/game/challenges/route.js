@@ -74,8 +74,8 @@ export async function POST(request) {
     const body = await request.json();
     if (body.key !== secret) return unauthorized();
 
-    if (!Array.isArray(body.rounds) || body.rounds.length !== 5) {
-      return Response.json({ error: "rounds must be an array of 5 items." }, { status: 400 });
+    if (!Array.isArray(body.rounds) || body.rounds.length !== 1) {
+      return Response.json({ error: "rounds must be an array of 1 item." }, { status: 400 });
     }
 
     for (let i = 0; i < body.rounds.length; i += 1) {

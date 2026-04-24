@@ -42,12 +42,12 @@
     "id": "2026-04-24",
     "rounds": [
       {
-        "title": "Chimantá Massif, Venezuela",
+        "title": "Long Range, Newfoundland, Canada",
         "description": "",
-        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/f/fd/Kukenan_Tepuy_at_Sunset.jpg",
+        "imageUrl": "https://res.cloudinary.com/dwtaveb0v/image/upload/v1777053707/BD3C28EC-366A-460D-9645-B03249CA27C5_rzxluy.jpg",
         "hint": "It is a geological formation called \"tepuy\"",
-        "latitude": 5.364931,
-        "longitude": -62.080513
+        "latitude": 49.743247,
+        "longitude": -57.678832
       }
     ]
   },
@@ -142,5 +142,4 @@
       }
     ]
   }
-
 }

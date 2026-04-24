@@ -427,9 +427,14 @@ a.submit-guess-button {
 }
 
 .game-share-status {
-  margin: 0 0 12px 0;
-  font-size: 0.95rem;
-  color: #374151;
+  margin: 6px 0 12px 0;
+  font-size: 0.78rem;
+  line-height: 1.2;
+  color: #94a3b8;
+}
+
+.game-final-modal .game-share-status {
+  margin: 6px 0 0 0;
 }
 
 .game-hint-button {
@@ -1305,6 +1310,22 @@ a.game-btn {
   width: 0;
   background: linear-gradient(90deg, #22c55e 0%, #4ade80 60%, #86efac 100%);
   transition: width 1.8s cubic-bezier(0.25, 1, 0.3, 1);
+}
+
+.game-final-modal__meter-fill.game-score-tier--bad {
+  background: linear-gradient(90deg, #b91c1c 0%, #ef4444 100%);
+}
+
+.game-final-modal__meter-fill.game-score-tier--ok {
+  background: linear-gradient(90deg, #c2410c 0%, #fb923c 100%);
+}
+
+.game-final-modal__meter-fill.game-score-tier--good {
+  background: linear-gradient(90deg, #ca8a04 0%, #facc15 100%);
+}
+
+.game-final-modal__meter-fill.game-score-tier--great {
+  background: linear-gradient(90deg, #15803d 0%, #4ade80 100%);
 }
 
 .game-final-modal__score {

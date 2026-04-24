@@ -343,6 +343,9 @@ function ClassicPlay() {
     showFinalScoreModal &&
     maxTotalScore > 0 &&
     displayTotalScore / maxTotalScore >= 0.95;
+  const finalScoreTierClass = scoreTierClass(
+    maxTotalScore > 0 ? (displayTotalScore / maxTotalScore) * 1000 : 0
+  );
 
   useEffect(() => {
     if (gameFinished) setShowFinalScoreModal(true);
@@ -491,7 +494,7 @@ function ClassicPlay() {
     if (!shareSummary) return;
     try {
       await navigator.clipboard.writeText(shareSummary);
-      setShareStatus("Copied results to clipboard.");
+      setShareStatus("Copied to clipboard");
     } catch {
       setShareStatus("Could not copy automatically.");
     }
@@ -708,12 +711,14 @@ function ClassicPlay() {
             </h2>
             <div className="game-final-modal__meter" aria-hidden>
               <div
-                className="game-final-modal__meter-fill"
+                className={`game-final-modal__meter-fill ${finalScoreTierClass}`}
                 style={{ width: `${finalScoreFillPercent}%` }}
               />
             </div>
             {showFinalScoreNumber ? (
-              <p className="game-final-modal__score game-final-modal__score--visible">
+              <p
+                className={`game-final-modal__score game-final-modal__score--visible ${finalScoreTierClass}`}
+              >
                 {displayTotalScore}
                 <span className="game-final-modal__denominator"> / {maxTotalScore}</span>
               </p>
@@ -739,6 +744,7 @@ function ClassicPlay() {
                 Close
               </button>
             </div>
+            {shareStatus ? <p className="game-share-status">{shareStatus}</p> : null}
           </div>
         </div>
       ) : null}
