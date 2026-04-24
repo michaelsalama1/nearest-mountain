@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useEffect, useCallback } from "react";
 import dynamic from "next/dynamic";
+import DailyPlay from "./DailyPlay";
 
 const InteractiveGuessMap = dynamic(() => import("./InteractiveGuessMap"), {
   ssr: false
@@ -11,7 +12,8 @@ const FinalResultsMap = dynamic(() => import("./FinalResultsMap"), {
 });
 
 const ROUND_MULTIPLIERS = [1, 1, 2, 3, 3];
-const ROUND_BASE_MAX = 100;
+const ROUND_BASE_MAX = 1000;
+const SCORE_DISTANCE_SCALE_KM = 2000;
 // Using a hint multiplies the round’s weight (1,1,2,3,3) by this factor.
 const HINT_MULTIPLIER = 0.75;
 // Total hint uses allowed per run (across all rounds), not one per round.
@@ -34,8 +36,10 @@ function haversineKm(lat1, lon1, lat2, lon2) {
 }
 
 function scoreFromDistance(distanceKm) {
-  // Base round score is out of 100, then weighted by round multiplier.
-  return Math.max(0, Math.round(ROUND_BASE_MAX - distanceKm * 0.04));
+  // Base round score is out of 1000, then weighted by round multiplier.
+  const safeDistanceKm = Math.max(0, distanceKm);
+  const score = ROUND_BASE_MAX * Math.exp(-safeDistanceKm / SCORE_DISTANCE_SCALE_KM);
+  return Math.max(1, Math.round(score));
 }
 
 function formatChallengeDate(isoDate) {
@@ -46,15 +50,31 @@ function formatChallengeDate(isoDate) {
 }
 
 function emojiForBaseScore(baseScore) {
-  if (baseScore === 100) return "🎯";
-  if (baseScore >= 95) return "🏔️";
-  if (baseScore >= 90) return "🌄";
-  if (baseScore >= 85) return "⛏️";
-  if (baseScore >= 80) return "🌲";
+  if (baseScore >= 950) return "🎯";
+  if (baseScore >= 900) return "🏔️";
+  if (baseScore >= 800) return "🌄";
+  if (baseScore >= 700) return "⛏️";
+  if (baseScore >= 600) return "🌲";
   return "🔭";
 }
 
-export default function PlayPage() {
+function scoreTierClass(score) {
+  if (score < 200) return "game-score-tier--bad";
+  if (score < 500) return "game-score-tier--ok";
+  if (score < 700) return "game-score-tier--good";
+  return "game-score-tier--great";
+}
+
+function createRandomFirework(idSeed) {
+  return {
+    id: `${idSeed}-${Math.random().toString(36).slice(2, 8)}`,
+    left: 8 + Math.random() * 84,
+    top: 10 + Math.random() * 78,
+    delayMs: 0
+  };
+}
+
+function ClassicPlay() {
   const [challenge, setChallenge] = useState(null);
   const [challengeDate, setChallengeDate] = useState("");
   const [loading, setLoading] = useState(true);
@@ -67,6 +87,10 @@ export default function PlayPage() {
   const [alreadyPlayedToday, setAlreadyPlayedToday] = useState(false);
   const [hintsUsed, setHintsUsed] = useState([false, false, false, false, false]);
   const [isDemo, setIsDemo] = useState(false);
+  const [showFinalScoreModal, setShowFinalScoreModal] = useState(false);
+  const [showFinalScoreNumber, setShowFinalScoreNumber] = useState(false);
+  const [finalScoreFillPercent, setFinalScoreFillPercent] = useState(0);
+  const [fireworksBursts, setFireworksBursts] = useState([]);
   const [dismissedWelcomeModal, setDismissedWelcomeModal] = useState(() => {
     if (typeof window === "undefined") return true;
     return window.sessionStorage.getItem(WELCOME_MODAL_SESSION_KEY) === "1";
@@ -314,6 +338,49 @@ export default function PlayPage() {
     [nDailyRounds]
   );
   const totalTrackPips = nDailyRounds;
+  const showFireworks =
+    gameFinished &&
+    showFinalScoreModal &&
+    maxTotalScore > 0 &&
+    displayTotalScore / maxTotalScore >= 0.95;
+
+  useEffect(() => {
+    if (gameFinished) setShowFinalScoreModal(true);
+  }, [gameFinished]);
+
+  useEffect(() => {
+    if (!showFinalScoreModal) {
+      setShowFinalScoreNumber(false);
+      setFinalScoreFillPercent(0);
+      setFireworksBursts([]);
+      return;
+    }
+    const targetFill = Math.max(0, Math.min(100, (displayTotalScore / maxTotalScore) * 100));
+    let fireworksInterval;
+    let pruneTimeout;
+    if (showFireworks) {
+      setFireworksBursts([createRandomFirework(Date.now())]);
+      fireworksInterval = window.setInterval(() => {
+        const now = Date.now();
+        const nextBurst = createRandomFirework(now);
+        setFireworksBursts((prev) => [...prev, nextBurst]);
+        window.setTimeout(() => {
+          setFireworksBursts((prev) => prev.filter((burst) => burst.id !== nextBurst.id));
+        }, 1800);
+      }, 260);
+      pruneTimeout = window.setTimeout(() => {
+        setFireworksBursts([]);
+      }, 3600);
+    }
+    const startTimeout = window.setTimeout(() => setFinalScoreFillPercent(targetFill), 40);
+    const revealTimeout = window.setTimeout(() => setShowFinalScoreNumber(true), 2000);
+    return () => {
+      window.clearTimeout(startTimeout);
+      window.clearTimeout(revealTimeout);
+      if (fireworksInterval) window.clearInterval(fireworksInterval);
+      if (pruneTimeout) window.clearTimeout(pruneTimeout);
+    };
+  }, [showFinalScoreModal, displayTotalScore, maxTotalScore, showFireworks]);
 
   const onMapClick = (nextGuess) => {
     if (alreadyPlayedToday) return;
@@ -608,6 +675,74 @@ export default function PlayPage() {
         </div>
       ) : null}
 
+      {gameFinished && showFinalScoreModal ? (
+        <div
+          className="game-final-modal-backdrop"
+          onClick={() => setShowFinalScoreModal(false)}
+        >
+          {showFireworks ? (
+            <div className="game-fireworks-layer" aria-hidden>
+              {fireworksBursts.map((burst) => (
+                <span
+                  key={burst.id}
+                  className="game-firework"
+                  style={{
+                    left: `${burst.left}%`,
+                    top: `${burst.top}%`,
+                    animationDelay: `${burst.delayMs}ms`
+                  }}
+                />
+              ))}
+            </div>
+          ) : null}
+          <div
+            className="game-final-modal"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="classic-final-score-title"
+          >
+            <p className="game-final-modal__eyebrow">Game complete</p>
+            <h2 className="game-final-modal__title" id="classic-final-score-title">
+              Final score
+            </h2>
+            <div className="game-final-modal__meter" aria-hidden>
+              <div
+                className="game-final-modal__meter-fill"
+                style={{ width: `${finalScoreFillPercent}%` }}
+              />
+            </div>
+            {showFinalScoreNumber ? (
+              <p className="game-final-modal__score game-final-modal__score--visible">
+                {displayTotalScore}
+                <span className="game-final-modal__denominator"> / {maxTotalScore}</span>
+              </p>
+            ) : (
+              <p className="game-final-modal__score game-final-modal__score--hidden" aria-hidden>
+                0
+                <span className="game-final-modal__denominator"> / {maxTotalScore}</span>
+              </p>
+            )}
+            <div className="game-final-modal__actions">
+              <button
+                type="button"
+                className="game-btn game-btn--primary"
+                onClick={onShare}
+              >
+                Share
+              </button>
+              <button
+                type="button"
+                className="game-btn game-btn--secondary"
+                onClick={() => setShowFinalScoreModal(false)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       {!gameFinished && !alreadyPlayedToday ? <div className="game-grid game-grid--play">
         <section className="game-photo game-card game-card--photo">
           {currentRound.imageUrl ? (
@@ -686,9 +821,12 @@ export default function PlayPage() {
               ? "Round 0 result"
               : `Round ${roundIndex + 1} result`}
           </h3>
-          <p>Distance off: {result.distanceKm.toFixed(1)} km</p>
-          <p>
-            Score: {result.baseScore} (×
+          <p className="game-distance-readout">
+            Distance off
+            <span className="game-distance-value">{result.distanceKm.toFixed(1)} km</span>
+          </p>
+          <p className="game-score-readout">
+            Score: {result.baseScore}/1000 (×
             {result.effectiveMultiplier % 1 === 0
               ? result.effectiveMultiplier
               : Number((result.effectiveMultiplier + 1e-10).toFixed(2))}
@@ -745,7 +883,9 @@ export default function PlayPage() {
                         —
                       </span>
                     )}
-                    <span className="game-breakdown-list__pts">
+                    <span
+                      className={`game-breakdown-list__pts ${scoreTierClass(item.score)}`}
+                    >
                       {item.score}
                       <span className="game-pts">pts</span>
                     </span>
@@ -786,4 +926,15 @@ export default function PlayPage() {
       ) : null}
     </main>
   );
+}
+
+export default function PlayPage() {
+  const [mode, setMode] = useState("");
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const urlMode = new URLSearchParams(window.location.search).get("mode") || "";
+    setMode(urlMode.toLowerCase());
+  }, []);
+  if (mode === "classic") return <ClassicPlay />;
+  return <DailyPlay />;
 }

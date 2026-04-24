@@ -22,7 +22,12 @@
         "hint": "This group of peaks was photographed by Ansel Adams in 1936.",
         "latitude": 37.09426,
         "longitude": -118.514455
-      },
+      }
+    ]
+  },
+  "2026-04-23": {
+    "id": "2026-04-23",
+    "rounds": [
       {
         "title": "Spider Mountain, North Cascades, USA",
         "description": "",
@@ -30,15 +35,25 @@
         "hint": "It is in a US National Park.",
         "latitude": 48.409294,
         "longitude": -121.036205
-      },
+      }
+    ]
+  },
+  "2026-04-24": {
+    "id": "2026-04-24",
+    "rounds": [
       {
-        "title": "Chimanta Massif, Venezuela",
+        "title": "Chimantá Massif, Venezuela",
         "description": "",
         "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/f/fd/Kukenan_Tepuy_at_Sunset.jpg",
         "hint": "It is a geological formation called \"tepuy\"",
         "latitude": 5.364931,
         "longitude": -62.080513
-      },
+      }
+    ]
+  },
+  "2026-04-25": {
+    "id": "2026-04-25",
+    "rounds": [
       {
         "title": "Mt Etna, Italy",
         "description": "",
@@ -46,7 +61,12 @@
         "hint": "The largest of four active volcanoes in its country.",
         "latitude": 37.753889,
         "longitude": 14.993708
-      },
+      }
+    ]
+  },
+  "2026-04-26": {
+    "id": "2026-04-26",
+    "rounds": [
       {
         "title": "Jabal al-Harim, Oman",
         "description": "",
@@ -55,11 +75,10 @@
         "latitude": 25.976339,
         "longitude": 56.231725
       }
-      
     ]
   },
-  "2026-04-23": {
-    "id": "2026-04-23",
+  "2026-04-27": {
+    "id": "2026-04-27",
     "rounds": [
       {
         "title": "K2, Pakistan",
@@ -68,7 +87,12 @@
         "hint": "One of the tallest--and deadliest--mountains in the world.",
         "latitude": 35.801944,
         "longitude": 76.517778
-      },
+      }
+    ]
+  },
+  "2026-04-28": {
+    "id": "2026-04-28",
+    "rounds": [
       {
         "title": "Bear Mountain, NY, USA",
         "description": "",
@@ -76,7 +100,12 @@
         "hint": "This is just one hour from a major population center.",
         "latitude": 41.311838,
         "longitude": -74.001746
-      },
+      }
+    ]
+  },
+  "2026-04-29": {
+    "id": "2026-04-29",
+    "rounds": [
       {
         "title": "Assiniboine, British Columbia, Canada",
         "description": "",
@@ -84,7 +113,12 @@
         "hint": "The Matterhorn of the Western Hemisphere.",
         "latitude": 50.887418,
         "longitude": -115.625377
-      },
+      }
+    ]
+  },
+  "2026-04-30": {
+    "id": "2026-04-30",
+    "rounds": [
       {
         "title": "Ranrapalca, Cordillera Blanca, Peru",
         "description": "",
@@ -92,7 +126,12 @@
         "hint": "Its range is home to the most ice in the tropics.",
         "latitude": -9.414159,
         "longitude": -77.419349
-      },
+      }
+    ]
+  },
+  "2026-05-01": {
+    "id": "2026-05-01",
+    "rounds": [
       {
         "title": "Turk Ridge, New Zealand",
         "description": "",
@@ -100,7 +139,6 @@
         "hint": "Located near the Clarence River.",
         "latitude": -42.101833,
         "longitude": 172.8365
-   
       }
     ]
   }
