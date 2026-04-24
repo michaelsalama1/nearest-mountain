@@ -55,12 +55,12 @@
     "id": "2026-04-25",
     "rounds": [
       {
-        "title": "Mt Etna, Italy",
+        "title": "The Dog's Tooth, Crazy Mountains, USA",
         "description": "",
-        "imageUrl": "https://afar.brightspotcdn.com/dims4/default/09fdb6c/2147483647/strip/false/crop/3000x2017+0+0/resize/1486x999!/quality/90/?url=https%3A%2F%2Fk3-prod-afar-media.s3.us-west-2.amazonaws.com%2Fbrightspot%2F82%2Fd7%2Fb0dc081148a9a1f5e936fed10f49%2Fshutterstock-2306511673.jpg",
+        "imageUrl": "https://res.cloudinary.com/dwtaveb0v/image/upload/v1776885396/IMG_1542_qixlst.jpg",
         "hint": "The largest of four active volcanoes in its country.",
-        "latitude": 37.753889,
-        "longitude": 14.993708
+        "latitude": 46.034291,
+        "longitude": -110.329524
       }
     ]
   },

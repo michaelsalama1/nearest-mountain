@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 
 const InteractiveGuessMap = dynamic(() => import("./InteractiveGuessMap"), { ssr: false });
 
-const SUMMIT_DISTANCE_KM = 10;
+const SUMMIT_DISTANCE_KM = 5;
 const LEAVE_NO_TRACE_URL =
   "https://lnt.org/why/7-principles/?gad_source=1&gad_campaignid=18565554164&gbraid=0AAAAADFQyoq7FQPJLmdZkhr4lmfpKTemO&gclid=EAIaIQobChMItcv3-4GHlAMVvzIIBR07YR2DEAAYAiAAEgK8B_D_BwE";
 const DAILY_WELCOME_DONE_KEY = "nm_daily_welcome_done";
