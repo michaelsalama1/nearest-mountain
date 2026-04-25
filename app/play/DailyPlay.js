@@ -8,6 +8,8 @@ const InteractiveGuessMap = dynamic(() => import("./InteractiveGuessMap"), { ssr
 const SUMMIT_DISTANCE_KM = 2.5;
 const LEAVE_NO_TRACE_URL =
   "https://lnt.org/why/7-principles/?gad_source=1&gad_campaignid=18565554164&gbraid=0AAAAADFQyoq7FQPJLmdZkhr4lmfpKTemO&gclid=EAIaIQobChMItcv3-4GHlAMVvzIIBR07YR2DEAAYAiAAEgK8B_D_BwE";
+const ROUND_SUBMISSION_FORM_URL =
+  "https://docs.google.com/forms/d/e/1FAIpQLSc2afp2tqxPG6So9R_O_whVR4XcUVmift-W3k5b-_f5nlANPQ/viewform?usp=sharing&ouid=115519356194953789768";
 const DAILY_WELCOME_DONE_KEY = "nm_daily_welcome_done";
 const DAILY_WELCOME_MODAL_SESSION_KEY = "nm_daily_welcome_modal_dismissed";
 
@@ -326,8 +328,18 @@ export default function DailyPlay({ testDateId = "" }) {
   return (
     <main className="game-shell game-play game-animate-in">
       <header className="game-hud" role="banner">
+        <a
+          className="game-hud__badge game-hud__badge-link game-hud__share-corner"
+          href={ROUND_SUBMISSION_FORM_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Submit your own round!
+        </a>
         <div className="game-hud__brand"><span className="game-hud__mark" aria-hidden>⛰</span><div className="game-hud__brand-text"><h1 className="game-hud__title">Summit Attempt</h1><p className="game-hud__date">{formatChallengeDate(challengeDate)}</p>{testDateId ? <p className="game-hud__preview">Preview (gamemaster test link)</p> : null}</div></div>
-        <div className="game-hud__stats"><p className="game-hud__scoreline"><span className="game-hud__label">Attempts</span><span className="game-hud__scoreval">{attempts.length}</span></p></div>
+        <div className="game-hud__stats">
+          <p className="game-hud__scoreline"><span className="game-hud__label">Attempts</span><span className="game-hud__scoreval">{attempts.length}</span></p>
+        </div>
       </header>
 
       {showWelcomeModal ? (
