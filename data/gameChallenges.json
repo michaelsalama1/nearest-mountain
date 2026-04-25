@@ -107,6 +107,19 @@
     "id": "2026-04-29",
     "rounds": [
       {
+        "title": "Nanga Parbat, Kashmir",
+        "description": "",
+        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dc/Nanga_Parbat_Rupal_Base_camp%2C_Gilgit_Baltistan.JPG/3840px-Nanga_Parbat_Rupal_Base_camp%2C_Gilgit_Baltistan.JPG",
+        "hint": "",
+        "latitude": 35.2375,
+        "longitude": 74.589167
+      }
+    ]
+  },
+  "2026-04-30": {
+    "id": "2026-04-30",
+    "rounds": [
+      {
         "title": "Assiniboine, British Columbia, Canada",
         "description": "",
         "imageUrl": "https://img.goodfon.ru/original/5120x3200/a/fb/mount-assiniboine-east-kootenay-banff-canada-gora-assiniboin.jpg",
@@ -116,8 +129,8 @@
       }
     ]
   },
-  "2026-04-30": {
-    "id": "2026-04-30",
+  "2026-05-01": {
+    "id": "2026-05-01",
     "rounds": [
       {
         "title": "Ranrapalca, Cordillera Blanca, Peru",
@@ -129,8 +142,21 @@
       }
     ]
   },
-  "2026-05-01": {
-    "id": "2026-05-01",
+  "2026-05-02": {
+    "id": "2026-05-02",
+    "rounds": [
+      {
+        "title": "Mt Asgard, Canada",
+        "description": "",
+        "imageUrl": "https://res.cloudinary.com/dwtaveb0v/image/upload/v1777079780/alkdjaf_modim4.webp",
+        "hint": "",
+        "latitude": 66.672222,
+        "longitude": -65.274444
+      }
+    ]
+  },
+  "2026-05-03": {
+    "id": "2026-05-03",
     "rounds": [
       {
         "title": "Turk Ridge, New Zealand",
@@ -139,6 +165,71 @@
         "hint": "Located near the Clarence River.",
         "latitude": -42.101833,
         "longitude": 172.8365
+      }
+    ]
+  },
+  "2026-05-04": {
+    "id": "2026-05-04",
+    "rounds": [
+      {
+        "title": "Alam-Kuh, Iran",
+        "description": "",
+        "imageUrl": "https://ifpnews.com/wp-content/uploads/2025/09/0000-11.jpg",
+        "hint": "",
+        "latitude": 36.375736,
+        "longitude": 50.961475
+      }
+    ]
+  },
+  "2026-05-05": {
+    "id": "2026-05-05",
+    "rounds": [
+      {
+        "title": "Mt. Ritter, USA",
+        "description": "",
+        "imageUrl": "https://res.cloudinary.com/dwtaveb0v/image/upload/v1776885835/409EA3E6-F68B-48AA-9609-0C1A6E7272D2_1_105_c_oeuamk.jpg",
+        "hint": "",
+        "latitude": 37.689378,
+        "longitude": -119.19903
+      }
+    ]
+  },
+  "2026-05-06": {
+    "id": "2026-05-06",
+    "rounds": [
+      {
+        "title": "Volcán Viedma",
+        "description": "",
+        "imageUrl": "https://res.cloudinary.com/dwtaveb0v/image/upload/v1776885520/7FCE72B9-1AF1-48CF-BB5F-06352C68ABA7_zxvmbm.jpg",
+        "hint": "",
+        "latitude": -49.39231,
+        "longitude": -73.317435
+      }
+    ]
+  },
+  "2026-05-07": {
+    "id": "2026-05-07",
+    "rounds": [
+      {
+        "title": "Maromokotro, Madagascar",
+        "description": "",
+        "imageUrl": "https://peakvisor.com/photo/Madagascar-rock-Landscape.jpg",
+        "hint": "",
+        "latitude": -14.023333,
+        "longitude": 48.965833
+      }
+    ]
+  },
+  "2026-05-08": {
+    "id": "2026-05-08",
+    "rounds": [
+      {
+        "title": "Nevado Sajama, Bolivia",
+        "description": "",
+        "imageUrl": "https://res.cloudinary.com/dwtaveb0v/image/upload/v1776885597/A2821074-5325-42BB-83B9-D03FC98EC856_hie6ut.jpg",
+        "hint": "",
+        "latitude": -18.108056,
+        "longitude": -68.883056
       }
     ]
   }

@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/alert-tomorrow-challenge?test=1",
+      "schedule": "45 1 * * *"
+    }
+  ]
+}

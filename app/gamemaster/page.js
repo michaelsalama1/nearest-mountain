@@ -13,11 +13,29 @@ function addDays(isoDate, amount) {
   return date.toISOString().slice(0, 10);
 }
 
+function arrayMove(arr, from, to) {
+  if (from < 0 || to < 0 || from >= arr.length || to >= arr.length) return arr;
+  if (from === to) return arr;
+  const n = arr.slice();
+  const [moved] = n.splice(from, 1);
+  n.splice(to, 0, moved);
+  return n;
+}
+
+/** Keep calendar window fixed; reassign `startDate + 0..4` to the current row order. */
+function daysWithRoundsRestamped(startDate, days) {
+  return days.map((d, i) => ({
+    date: addDays(startDate, i),
+    round: d.round
+  }));
+}
+
 export default function GamemasterPage() {
   const createEmptyRound = () => ({
     title: "",
     description: "",
     imageUrl: "",
+    hint: "",
     latLon: "",
     latitude: "",
     longitude: ""
@@ -39,6 +57,7 @@ export default function GamemasterPage() {
   const [unlocked, setUnlocked] = useState(false);
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
+  const [dragOverIndex, setDragOverIndex] = useState(null);
 
   useEffect(() => {
     async function loadExisting() {
@@ -91,19 +110,59 @@ export default function GamemasterPage() {
     }));
   };
 
-  const parseLatLonInput = (value, roundNumber) => {
-    const [rawLat, rawLon] = (value || "").split(",").map((part) => part.trim());
-    if (!rawLat || !rawLon) {
-      throw new Error(`Round ${roundNumber}: Lat/Long must be in the format "latitude, longitude"`);
-    }
+  const moveRow = (from, to) => {
+    setForm((prev) => {
+      const next = arrayMove(prev.days, from, to);
+      return { ...prev, days: daysWithRoundsRestamped(prev.startDate, next) };
+    });
+  };
 
-    const parsedLat = Number(rawLat);
-    const parsedLon = Number(rawLon);
-    if (Number.isNaN(parsedLat) || Number.isNaN(parsedLon)) {
-      throw new Error(`Round ${roundNumber}: Lat/Long must contain valid numbers.`);
-    }
+  const shuffleRows = () => {
+    setForm((prev) => {
+      const rounds = prev.days.map((d) => d.round);
+      for (let i = rounds.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [rounds[i], rounds[j]] = [rounds[j], rounds[i]];
+      }
+      return {
+        ...prev,
+        days: daysWithRoundsRestamped(
+          prev.startDate,
+          rounds.map((round) => ({ date: prev.startDate, round }))
+        )
+      };
+    });
+  };
 
-    return { parsedLat, parsedLon };
+  const onDragStartRow = (e, index) => {
+    e.dataTransfer.setData("text/plain", String(index));
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const onDropOnRow = (e, toIndex) => {
+    e.preventDefault();
+    const from = parseInt(e.dataTransfer.getData("text/plain"), 10);
+    if (Number.isNaN(from)) return;
+    moveRow(from, toIndex);
+    setDragOverIndex(null);
+  };
+
+  /** Lenient: empty or invalid lat/lon → 0,0 so partial rounds can be saved. */
+  const parseLatLonForSave = (value) => {
+    const trimmed = (value || "").trim();
+    if (!trimmed) return { lat: 0, lon: 0 };
+    const i = trimmed.indexOf(",");
+    if (i === -1) return { lat: 0, lon: 0 };
+    const rawLat = trimmed.slice(0, i).trim();
+    const rawLon = trimmed.slice(i + 1).trim();
+    if (rawLat === "" || rawLon === "") return { lat: 0, lon: 0 };
+    const lat = Number(rawLat);
+    const lon = Number(rawLon);
+    if (Number.isNaN(lat) || Number.isNaN(lon)) return { lat: 0, lon: 0 };
+    return {
+      lat: Math.min(90, Math.max(-90, lat)),
+      lon: Math.min(180, Math.max(-180, lon))
+    };
   };
 
   const onSubmit = async (event) => {
@@ -117,15 +176,19 @@ export default function GamemasterPage() {
     try {
       for (const day of form.days) {
         const round = day.round;
-        const { parsedLat, parsedLon } = parseLatLonInput(round.latLon, day.date);
+        const { lat, lon } = parseLatLonForSave(round.latLon);
         const payload = {
           key: form.key,
           date: day.date,
           rounds: [
             {
               ...round,
-              latitude: parsedLat,
-              longitude: parsedLon
+              title: round.title ?? "",
+              description: round.description ?? "",
+              imageUrl: round.imageUrl ?? "",
+              hint: round.hint ?? "",
+              latitude: lat,
+              longitude: lon
             }
           ]
         };
@@ -163,7 +226,7 @@ export default function GamemasterPage() {
             type="password"
             value={form.key}
             onChange={(e) => setField("key", e.target.value)}
-            required
+            autoComplete="off"
           />
         </label>
         {!unlocked ? (
@@ -207,14 +270,48 @@ export default function GamemasterPage() {
             </button>
           </div>
 
+          <div className="gm-reorder-bar">
+            <p className="gm-reorder-bar__text">
+              Reorder rows to change which challenge applies to which calendar day in this window, then
+              save.
+            </p>
+            <button
+              type="button"
+              className="gm-shuffle-btn"
+              onClick={shuffleRows}
+              disabled={loading}
+            >
+              Shuffle 5 days
+            </button>
+          </div>
+
         <div className="gm-rounds-stack">
           {form.days.map((day, index) => (
             <div
               key={`day-card-${day.date}`}
-              className="gm-round-card"
+              className={
+                "gm-round-card" +
+                (dragOverIndex === index ? " gm-round-card--drop-target" : "")
+              }
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = "move";
+                setDragOverIndex(index);
+              }}
+              onDrop={(e) => onDropOnRow(e, index)}
             >
               <div className="gm-round-header">
                 <div className="gm-round-header__left">
+                  <span
+                    className="gm-drag-handle"
+                    draggable
+                    onDragStart={(e) => onDragStartRow(e, index)}
+                    onDragEnd={() => setDragOverIndex(null)}
+                    title="Drag to reorder"
+                    aria-label={`Drag to reorder row for ${day.date}`}
+                  >
+                    ⠿
+                  </span>
                   <strong>{day.date}</strong>
                   <a
                     className="gm-test-link"
@@ -225,7 +322,31 @@ export default function GamemasterPage() {
                     Test in /play
                   </a>
                 </div>
-                <span className="gm-drag-hint">1 round</span>
+                <div className="gm-round-header__right" role="group" aria-label="Row position">
+                  <div className="gm-row-nudge">
+                    <button
+                      type="button"
+                      className="gm-row-nudge__btn"
+                      onClick={() => moveRow(index, index - 1)}
+                      disabled={index === 0 || loading}
+                      title="Move up in list"
+                      aria-label="Move this row up"
+                    >
+                      ↑
+                    </button>
+                    <button
+                      type="button"
+                      className="gm-row-nudge__btn"
+                      onClick={() => moveRow(index, index + 1)}
+                      disabled={index === form.days.length - 1 || loading}
+                      title="Move down in list"
+                      aria-label="Move this row down"
+                    >
+                      ↓
+                    </button>
+                  </div>
+                  <span className="gm-drag-hint">1 round</span>
+                </div>
               </div>
 
               <div className="gm-round-fields">
@@ -235,7 +356,6 @@ export default function GamemasterPage() {
                   onChange={(e) => setRoundField(index, "title", e.target.value)}
                   placeholder="Title"
                   aria-label={`${day.date} title`}
-                  required
                 />
 
                 <input
@@ -260,7 +380,6 @@ export default function GamemasterPage() {
                   onChange={(e) => setRoundField(index, "latLon", e.target.value)}
                   placeholder="Lat / Long (e.g. 37.09426, -118.514455)"
                   aria-label={`${day.date} latitude longitude`}
-                  required
                 />
 
               </div>

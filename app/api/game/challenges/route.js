@@ -31,19 +31,18 @@ function normalizeChallenge(challenge, date) {
   };
 }
 
-function validateRound(round, index) {
-  const required = ["title", "latitude", "longitude"];
-  for (const field of required) {
-    if (round[field] === undefined || round[field] === null || round[field] === "") {
-      return `Round ${index + 1}: missing ${field}`;
-    }
-  }
-
-  const lat = Number(round.latitude);
-  const lon = Number(round.longitude);
-  if (Number.isNaN(lat) || lat < -90 || lat > 90) return `Round ${index + 1}: invalid latitude`;
-  if (Number.isNaN(lon) || lon < -180 || lon > 180) return `Round ${index + 1}: invalid longitude`;
-  return null;
+/** Coerce partial rounds for save; WIP / empty fields are allowed. */
+function coercedLatLon(round) {
+  const lat0 = round.latitude;
+  const lon0 = round.longitude;
+  if (lat0 === "" || lat0 === null || lat0 === undefined) return { lat: 0, lon: 0 };
+  if (lon0 === "" || lon0 === null || lon0 === undefined) return { lat: 0, lon: 0 };
+  const lat = Number(lat0);
+  const lon = Number(lon0);
+  if (Number.isNaN(lat) || Number.isNaN(lon)) return { lat: 0, lon: 0 };
+  const clat = Math.min(90, Math.max(-90, lat));
+  const clon = Math.min(180, Math.max(-180, lon));
+  return { lat: clat, lon: clon };
 }
 
 export async function GET(request) {
@@ -78,24 +77,20 @@ export async function POST(request) {
       return Response.json({ error: "rounds must be an array of 1 item." }, { status: 400 });
     }
 
-    for (let i = 0; i < body.rounds.length; i += 1) {
-      const validationError = validateRound(body.rounds[i], i);
-      if (validationError) {
-        return Response.json({ error: validationError }, { status: 400 });
-      }
-    }
-
     const challenges = await readChallenges();
     challenges[body.date] = {
       id: body.date,
-      rounds: body.rounds.map((round) => ({
-        title: round.title,
-        description: round.description || "",
-        imageUrl: round.imageUrl,
-        hint: round.hint != null ? String(round.hint) : "",
-        latitude: Number(round.latitude),
-        longitude: Number(round.longitude)
-      }))
+      rounds: body.rounds.map((round) => {
+        const { lat, lon } = coercedLatLon(round);
+        return {
+          title: String(round?.title ?? ""),
+          description: round?.description != null ? String(round.description) : "",
+          imageUrl: round?.imageUrl != null ? String(round.imageUrl) : "",
+          hint: round?.hint != null ? String(round.hint) : "",
+          latitude: lat,
+          longitude: lon
+        };
+      })
     };
 
     await writeChallenges(challenges);
