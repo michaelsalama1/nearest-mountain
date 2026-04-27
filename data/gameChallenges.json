@@ -81,32 +81,6 @@
     "id": "2026-04-27",
     "rounds": [
       {
-        "title": "K2, Pakistan",
-        "description": "",
-        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/c/cd/K2_Nordseite.jpg",
-        "hint": "One of the tallest--and deadliest--mountains in the world.",
-        "latitude": 35.801944,
-        "longitude": 76.517778
-      }
-    ]
-  },
-  "2026-04-28": {
-    "id": "2026-04-28",
-    "rounds": [
-      {
-        "title": "Bear Mountain, NY, USA",
-        "description": "",
-        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/6/6a/Bear_Mountain_Bridge%2C_NY_from_river_level_loking_East.JPG",
-        "hint": "This is just one hour from a major population center.",
-        "latitude": 41.311838,
-        "longitude": -74.001746
-      }
-    ]
-  },
-  "2026-04-29": {
-    "id": "2026-04-29",
-    "rounds": [
-      {
         "title": "Nanga Parbat, Kashmir",
         "description": "",
         "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dc/Nanga_Parbat_Rupal_Base_camp%2C_Gilgit_Baltistan.JPG/3840px-Nanga_Parbat_Rupal_Base_camp%2C_Gilgit_Baltistan.JPG",
@@ -116,8 +90,8 @@
       }
     ]
   },
-  "2026-04-30": {
-    "id": "2026-04-30",
+  "2026-04-28": {
+    "id": "2026-04-28",
     "rounds": [
       {
         "title": "Assiniboine, British Columbia, Canada",
@@ -129,8 +103,8 @@
       }
     ]
   },
-  "2026-05-01": {
-    "id": "2026-05-01",
+  "2026-04-29": {
+    "id": "2026-04-29",
     "rounds": [
       {
         "title": "Ranrapalca, Cordillera Blanca, Peru",
@@ -139,6 +113,32 @@
         "hint": "Its range is home to the most ice in the tropics.",
         "latitude": -9.414159,
         "longitude": -77.419349
+      }
+    ]
+  },
+  "2026-04-30": {
+    "id": "2026-04-30",
+    "rounds": [
+      {
+        "title": "K2, Pakistan",
+        "description": "",
+        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/c/cd/K2_Nordseite.jpg",
+        "hint": "One of the tallest--and deadliest--mountains in the world.",
+        "latitude": 35.801944,
+        "longitude": 76.517778
+      }
+    ]
+  },
+  "2026-05-01": {
+    "id": "2026-05-01",
+    "rounds": [
+      {
+        "title": "Bear Mountain, NY, USA",
+        "description": "",
+        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/6/6a/Bear_Mountain_Bridge%2C_NY_from_river_level_loking_East.JPG",
+        "hint": "This is just one hour from a major population center.",
+        "latitude": 41.311838,
+        "longitude": -74.001746
       }
     ]
   },
