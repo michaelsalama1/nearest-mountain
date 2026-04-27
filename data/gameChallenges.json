@@ -232,5 +232,44 @@
         "longitude": -68.883056
       }
     ]
+  },
+  "2026-05-09": {
+    "id": "2026-05-09",
+    "rounds": [
+      {
+        "title": "Svetgar, Georgia",
+        "description": "https://georgia.travel/caucasus",
+        "imageUrl": "https://storage.georgia.travel/images/caucasus-kavkasia.webp",
+        "hint": "",
+        "latitude": 43.118169,
+        "longitude": 42.813596
+      }
+    ]
+  },
+  "2026-05-10": {
+    "id": "2026-05-10",
+    "rounds": [
+      {
+        "title": "Pereval Kukisvumchorr, Russia",
+        "description": "https://www.drive2.ru/users/grigorich1777/",
+        "imageUrl": "https://www.northernforum.org/images/32326eas-960.jpg",
+        "hint": "",
+        "latitude": 67.718419,
+        "longitude": 33.591466
+      }
+    ]
+  },
+  "2026-05-11": {
+    "id": "2026-05-11",
+    "rounds": [
+      {
+        "title": "",
+        "description": "",
+        "imageUrl": "",
+        "hint": "",
+        "latitude": 0,
+        "longitude": 0
+      }
+    ]
   }
 }

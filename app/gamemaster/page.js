@@ -26,6 +26,7 @@ function arrayMove(arr, from, to) {
 function daysWithRoundsRestamped(startDate, days) {
   return days.map((d, i) => ({
     date: addDays(startDate, i),
+    challengeId: addDays(startDate, i),
     round: d.round
   }));
 }
@@ -43,6 +44,7 @@ export default function GamemasterPage() {
 
   const createEmptyDayEntry = (date) => ({
     date,
+    challengeId: date,
     round: createEmptyRound()
   });
 
@@ -72,12 +74,20 @@ export default function GamemasterPage() {
             data = {};
           }
           if (!res.ok) {
-            return { date, round: createEmptyRound(), error: data.error || `Failed to load ${date}` };
+            return {
+              date,
+              challengeId: date,
+              round: createEmptyRound(),
+              error: data.error || `Failed to load ${date}`
+            };
           }
           const firstRound = data.challenge?.rounds?.[0];
-          if (!firstRound) return { date, round: createEmptyRound() };
+          if (!firstRound) {
+            return { date, challengeId: data.challenge?.id || date, round: createEmptyRound() };
+          }
           return {
             date,
+            challengeId: data.challenge?.id || date,
             round: {
               ...firstRound,
               latLon:
@@ -89,7 +99,11 @@ export default function GamemasterPage() {
         })
       );
 
-      const nextDays = responses.map((item) => ({ date: item.date, round: item.round }));
+      const nextDays = responses.map((item) => ({
+        date: item.date,
+        challengeId: item.challengeId || item.date,
+        round: item.round
+      }));
       const firstError = responses.find((item) => item.error)?.error;
       setForm((prev) => ({ ...prev, days: nextDays }));
       setStatus(firstError || "");
