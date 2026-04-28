@@ -94,12 +94,12 @@
     "id": "2026-04-28",
     "rounds": [
       {
-        "title": "Assiniboine, British Columbia, Canada",
+        "title": "Ranrapalca, Cordillera Blanca, Peru",
         "description": "",
-        "imageUrl": "https://img.goodfon.ru/original/5120x3200/a/fb/mount-assiniboine-east-kootenay-banff-canada-gora-assiniboin.jpg",
-        "hint": "The Matterhorn of the Western Hemisphere.",
-        "latitude": 50.887418,
-        "longitude": -115.625377
+        "imageUrl": "https://res.cloudinary.com/dwtaveb0v/image/upload/v1776885840/80FCBE6F-388F-4352-A3E5-DE0AE1AC5BEC_1_105_c_eisinl.jpg",
+        "hint": "Its range is home to the most ice in the tropics.",
+        "latitude": -9.414159,
+        "longitude": -77.419349
       }
     ]
   },
@@ -107,12 +107,12 @@
     "id": "2026-04-29",
     "rounds": [
       {
-        "title": "Ranrapalca, Cordillera Blanca, Peru",
+        "title": "Assiniboine, British Columbia, Canada",
         "description": "",
-        "imageUrl": "https://res.cloudinary.com/dwtaveb0v/image/upload/v1776885840/80FCBE6F-388F-4352-A3E5-DE0AE1AC5BEC_1_105_c_eisinl.jpg",
-        "hint": "Its range is home to the most ice in the tropics.",
-        "latitude": -9.414159,
-        "longitude": -77.419349
+        "imageUrl": "https://res.cloudinary.com/dwtaveb0v/image/upload/v1777379646/mount-assiniboine-east-kootenay-banff-canada-gora-assiniboin_dhmo3j.jpg",
+        "hint": "The Matterhorn of the Western Hemisphere.",
+        "latitude": 50.887418,
+        "longitude": -115.625377
       }
     ]
   },
