@@ -2,6 +2,9 @@
 
 import { useMemo, useState, useEffect } from "react";
 import dynamic from "next/dynamic";
+import { signInAnonymously } from "firebase/auth";
+import { collection, doc, getDocs, query, serverTimestamp, setDoc, where } from "firebase/firestore";
+import { getFirebaseServices } from "@/lib/firebaseClient";
 
 const InteractiveGuessMap = dynamic(() => import("./InteractiveGuessMap"), { ssr: false });
 
@@ -145,6 +148,12 @@ export default function DailyPlay({ testDateId = "" }) {
     if (typeof window === "undefined") return true;
     return window.sessionStorage.getItem(DAILY_WELCOME_MODAL_SESSION_KEY) === "1";
   });
+  const [firebaseUserId, setFirebaseUserId] = useState("");
+  const [leaderboardRank, setLeaderboardRank] = useState(null);
+  const [dailyLeaderboardRows, setDailyLeaderboardRows] = useState([]);
+  const [usernameInput, setUsernameInput] = useState("");
+  const [usernameSaveStatus, setUsernameSaveStatus] = useState("");
+  const [isSavingUsername, setIsSavingUsername] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -155,8 +164,17 @@ export default function DailyPlay({ testDateId = "" }) {
       const q = trimmed ? `?date=${encodeURIComponent(trimmed)}` : "";
       try {
         const res = await fetch(`/api/game/daily${q}`, { cache: "no-store" });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "Failed to load challenge");
+        const contentType = res.headers.get("content-type") || "";
+        let data = null;
+        if (contentType.includes("application/json")) {
+          data = await res.json();
+        } else {
+          const text = await res.text();
+          throw new Error(
+            `Daily challenge API returned non-JSON response (${res.status}). ${text.startsWith("<!DOCTYPE") ? "Route may be unavailable." : ""}`
+          );
+        }
+        if (!res.ok) throw new Error(data?.error || "Failed to load challenge");
         if (!cancelled) {
           setChallenge(data.challenge);
           setChallengeDate(data.date || "");
@@ -172,6 +190,24 @@ export default function DailyPlay({ testDateId = "" }) {
       cancelled = true;
     };
   }, [testDateId]);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function ensureUser() {
+      const services = getFirebaseServices();
+      if (!services) return;
+      try {
+        const credential = await signInAnonymously(services.auth);
+        if (!cancelled) setFirebaseUserId(credential.user.uid);
+      } catch {
+        // Keep game playable even if analytics storage fails.
+      }
+    }
+    ensureUser();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const currentRound = challenge?.rounds?.[0] || null;
   const storageKey = challengeDate ? `mountain-guessr:daily:${challengeDate}` : "";
@@ -280,6 +316,137 @@ export default function DailyPlay({ testDateId = "" }) {
     setAttempts(nextAttempts);
     setGuess(null);
     persist({ attempts: nextAttempts, guess: null });
+
+    const services = getFirebaseServices();
+    if (services && firebaseUserId && challengeDate) {
+      const leaderboardDocId = `${challengeDate}_${firebaseUserId}`;
+      const distanceAttempts = nextAttempts.map((attempt) => Number(attempt.distanceKm.toFixed(4)));
+      const totalDistance = distanceAttempts.reduce((sum, val) => sum + val, 0);
+      const completed = nextAttempts.some((attempt) => attempt.distanceKm <= SUMMIT_DISTANCE_KM);
+      setDoc(
+        doc(services.db, "leaderboard", leaderboardDocId),
+        {
+          user: firebaseUserId,
+          attempts: distanceAttempts,
+          attemptsCount: distanceAttempts.length,
+          totalDistance,
+          completed,
+          challengeDate,
+          date: serverTimestamp()
+        },
+        { merge: true }
+      ).catch(() => {
+        // No-op: save failures should not interrupt game flow.
+      });
+    }
+  };
+
+  useEffect(() => {
+    let cancelled = false;
+    async function loadLeaderboardRank() {
+      if (!finished || !challengeDate || !firebaseUserId) return;
+      const services = getFirebaseServices();
+      if (!services) return;
+      try {
+        const snapshot = await getDocs(
+          query(
+            collection(services.db, "leaderboard"),
+            where("challengeDate", "==", challengeDate),
+            where("completed", "==", true)
+          )
+        );
+        const rows = snapshot.docs.map((rowDoc) => {
+          const data = rowDoc.data() || {};
+          const attemptsList = Array.isArray(data.attempts) ? data.attempts : [];
+          const attemptsCount =
+            typeof data.attemptsCount === "number" ? data.attemptsCount : attemptsList.length;
+          const totalDistance =
+            typeof data.totalDistance === "number"
+              ? data.totalDistance
+              : attemptsList.reduce((sum, val) => sum + Number(val || 0), 0);
+          return {
+            id: rowDoc.id,
+            attemptsCount,
+            totalDistance,
+            username: typeof data.username === "string" ? data.username : ""
+          };
+        });
+
+        rows.sort((a, b) => {
+          if (a.attemptsCount !== b.attemptsCount) return a.attemptsCount - b.attemptsCount;
+          return a.totalDistance - b.totalDistance;
+        });
+
+        const myId = `${challengeDate}_${firebaseUserId}`;
+        const myIndex = rows.findIndex((row) => row.id === myId);
+        if (!cancelled) {
+          setLeaderboardRank(myIndex >= 0 ? myIndex + 1 : null);
+          setDailyLeaderboardRows(rows.slice(0, 10));
+          const myRow = myIndex >= 0 ? rows[myIndex] : null;
+          if (myRow?.username) setUsernameInput(myRow.username);
+        }
+      } catch {
+        if (!cancelled) {
+          setLeaderboardRank(null);
+          setDailyLeaderboardRows([]);
+        }
+      }
+    }
+    loadLeaderboardRank();
+    return () => {
+      cancelled = true;
+    };
+  }, [finished, challengeDate, firebaseUserId]);
+
+  const saveUsername = async () => {
+    const trimmed = usernameInput.trim();
+    if (!trimmed || !challengeDate || !firebaseUserId) return;
+    const services = getFirebaseServices();
+    if (!services) return;
+    setIsSavingUsername(true);
+    setUsernameSaveStatus("");
+    try {
+      const leaderboardDocId = `${challengeDate}_${firebaseUserId}`;
+      await setDoc(
+        doc(services.db, "leaderboard", leaderboardDocId),
+        { username: trimmed },
+        { merge: true }
+      );
+      setUsernameSaveStatus("Username saved");
+    } catch {
+      setUsernameSaveStatus("Could not save username");
+    } finally {
+      setIsSavingUsername(false);
+    }
+  };
+
+  const myLeaderboardDocId = challengeDate && firebaseUserId ? `${challengeDate}_${firebaseUserId}` : "";
+  const canEditLeaderboardName = Boolean(leaderboardRank && leaderboardRank <= 10);
+  const renderLeaderboardNameCell = (row) => {
+    if (canEditLeaderboardName && row.id === myLeaderboardDocId) {
+      return (
+        <div className="game-leaderboard-inline-edit">
+          <input
+            type="text"
+            value={usernameInput}
+            onChange={(e) => setUsernameInput(e.target.value)}
+            onBlur={() => {
+              if (usernameInput.trim()) saveUsername();
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                if (usernameInput.trim()) saveUsername();
+              }
+            }}
+            placeholder="Anonymous user"
+            maxLength={24}
+            className="game-breakdown-list__name game-leaderboard-name-input"
+          />
+        </div>
+      );
+    }
+    return <span className="game-breakdown-list__name">{row.username || "Anonymous user"}</span>;
   };
 
   const shareSummary = useMemo(() => {
@@ -343,7 +510,7 @@ export default function DailyPlay({ testDateId = "" }) {
       </header>
 
       {showWelcomeModal ? (
-        <div className="game-welcome-backdrop" onClick={dismissWelcomeModal}><div className="game-welcome-dialog" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true"><div><h2 className="game-welcome-title">Summit Attempt Daily Challenge</h2><p className="game-welcome-lead">You have unlimited attempts to pinpoint this mountain.</p><p className="game-welcome-lead">After each attempt, you will see both distance and direction.</p><p className="game-welcome-lead">You summit when a guess is within {SUMMIT_DISTANCE_KM} km of the true peak. Get there in as few attempts as you can.</p></div><div className="game-welcome-actions"><button type="button" className="game-btn game-btn--primary game-btn--big" onClick={dismissWelcomeModal} autoFocus>Start</button></div></div></div>
+        <div className="game-welcome-backdrop" onClick={dismissWelcomeModal}><div className="game-welcome-dialog" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true"><div><h2 className="game-welcome-title">Summit Attempt Daily Challenge</h2><p className="game-welcome-lead">You have unlimited attempts to pinpoint this mountain.</p><p className="game-welcome-lead">Click the point of the highest peak in the photo, not the location where the photo was taken.</p><p className="game-welcome-lead">After each attempt, you will see both distance and direction.</p><p className="game-welcome-lead">You summit when a guess is within {SUMMIT_DISTANCE_KM} km of the true peak. Get there in as few attempts as you can.</p></div><div className="game-welcome-actions"><button type="button" className="game-btn game-btn--primary game-btn--big" onClick={dismissWelcomeModal} autoFocus>Start</button></div></div></div>
       ) : null}
 
       {finished && showFinalScoreModal ? (
@@ -356,9 +523,25 @@ export default function DailyPlay({ testDateId = "" }) {
             <a className="game-btn game-btn--secondary game-map-link game-map-link--modal" href={`https://www.google.com/maps?q=${currentRound.latitude},${currentRound.longitude}`} target="_blank" rel="noopener noreferrer">📍 Open in Google Maps</a>
             <p className="game-final-modal__distance">Closest attempt: {closestAttempt?.distanceKm?.toFixed(1) || "0.0"} km off</p>
             {summited && summitAttempt ? <p className="game-final-modal__distance">It took you {summitAttempt.tryNumber} {summitAttempt.tryNumber === 1 ? "attempt" : "attempts"} to summit.</p> : null}
+            {leaderboardRank ? <p className="game-final-modal__distance">Leaderboard rank: #{leaderboardRank}</p> : null}
             <div className="game-final-modal__actions"><button type="button" className="game-btn game-btn--primary" onClick={onShare}>Share</button><button type="button" className="game-btn game-btn--secondary" onClick={() => setShowFinalScoreModal(false)}>Close</button></div>
             {shareStatus ? <p className="game-share-status">{shareStatus}</p> : null}
           </div>
+          {dailyLeaderboardRows.length ? (
+            <div className="game-final-modal game-final-modal--leaderboard" onClick={(e) => e.stopPropagation()}>
+              <p className="game-final-modal__eyebrow">Today's leaderboard</p>
+              <ul className="game-breakdown-list" aria-label="Daily leaderboard">
+                {dailyLeaderboardRows.map((row, index) => (
+                  <li key={row.id} className="game-breakdown-list__row">
+                    <span className="game-breakdown-list__round">#{index + 1}</span>
+                    {renderLeaderboardNameCell(row)}
+                    <span className="game-breakdown-list__pts">{row.attemptsCount} tries • {row.totalDistance.toFixed(1)} km</span>
+                  </li>
+                ))}
+              </ul>
+              {canEditLeaderboardName && usernameSaveStatus ? <p className="game-share-status">{usernameSaveStatus}</p> : null}
+            </div>
+          ) : null}
         </div>
       ) : null}
 
@@ -374,7 +557,7 @@ export default function DailyPlay({ testDateId = "" }) {
         </section>
 
         <section className="game-map-section game-card game-card--map">
-          <InteractiveGuessMap guess={mapGuess} submitted={summited} challenge={currentRound} canPlaceGuess={canSubmitAttempt} onGuessPlaced={(nextGuess) => setGuess(nextGuess)} />
+          <InteractiveGuessMap guess={mapGuess} attempts={attempts} submitted={summited} challenge={currentRound} canPlaceGuess={canSubmitAttempt} onGuessPlaced={(nextGuess) => setGuess(nextGuess)} />
           <div className="game-controls">
             {guess ? <p>Attempt: {guess.lat}, {guess.lon}</p> : <p>{finished ? "Daily complete." : "Click the map to place your attempt."}</p>}
             <button type="button" className="game-btn game-btn--primary game-btn--lock" disabled={!guess || !canSubmitAttempt} onClick={submitAttempt}>{finished ? "Summited" : "Push for the Summit"}</button>
@@ -384,20 +567,37 @@ export default function DailyPlay({ testDateId = "" }) {
       </div>
 
       {attempts.length ? (
-        <section className="game-result game-card game-card--summary">
-          <h3 className="game-card__head">Attempt history</h3>
-          <ul className="game-breakdown-list" aria-label="Attempt results">
-            {attempts.map((item) => (
-              <li key={item.tryNumber} className="game-breakdown-list__row">
-                <span className="game-breakdown-list__round">A{item.tryNumber}</span>
-                <span className="game-breakdown-list__name">{item.distanceKm.toFixed(1)} km away</span>
-                <span className="game-breakdown-list__pts"><img src={`/arrows/${normalizeDirection(item.direction)}.svg?v=2`} alt={normalizeDirection(item.direction)} style={{ display: "inline-block", width: "0.6em", height: "0.6em", verticalAlign: "-0.08em", background: "transparent", boxShadow: "none", filter: "brightness(0) invert(1)" }} /></span>
-              </li>
-            ))}
-          </ul>
-          {finished ? <div className="game-final-total-row"><p className="game-final-total-line"><strong>Closest attempt</strong> {closestAttempt?.distanceKm?.toFixed(1) || "0.0"} km</p><button type="button" className="game-btn game-btn--primary" onClick={onShare}>Share</button></div> : null}
-          {shareStatus ? <p className="game-share-status">{shareStatus}</p> : null}
-        </section>
+        <div className="game-grid game-grid--play game-grid--summary">
+          <section className="game-result game-card game-card--summary">
+            <h3 className="game-card__head">Your attempt history</h3>
+            <ul className="game-breakdown-list" aria-label="Attempt results">
+              {attempts.map((item) => (
+                <li key={item.tryNumber} className="game-breakdown-list__row">
+                  <span className="game-breakdown-list__round">A{item.tryNumber}</span>
+                  <span className="game-breakdown-list__name">{item.distanceKm.toFixed(1)} km away</span>
+                  <span className="game-breakdown-list__pts"><img src={`/arrows/${normalizeDirection(item.direction)}.svg?v=2`} alt={normalizeDirection(item.direction)} style={{ display: "inline-block", width: "0.6em", height: "0.6em", verticalAlign: "-0.08em", background: "transparent", boxShadow: "none", filter: "brightness(0) invert(1)" }} /></span>
+                </li>
+              ))}
+            </ul>
+            {finished ? <div className="game-final-total-row"><p className="game-final-total-line"><strong>Closest attempt</strong> {closestAttempt?.distanceKm?.toFixed(1) || "0.0"} km</p><button type="button" className="game-btn game-btn--primary" onClick={onShare}>Share</button></div> : null}
+            {shareStatus ? <p className="game-share-status">{shareStatus}</p> : null}
+          </section>
+          {finished && dailyLeaderboardRows.length ? (
+            <section className="game-result game-card game-card--summary">
+              <h3 className="game-card__head">Today's leaderboard</h3>
+              <ul className="game-breakdown-list" aria-label="Daily leaderboard summary">
+                {dailyLeaderboardRows.map((row, index) => (
+                  <li key={`summary-${row.id}`} className="game-breakdown-list__row">
+                    <span className="game-breakdown-list__round">#{index + 1}</span>
+                    {renderLeaderboardNameCell(row)}
+                    <span className="game-breakdown-list__pts">{row.attemptsCount} tries • {row.totalDistance.toFixed(1)} km</span>
+                  </li>
+                ))}
+              </ul>
+              {canEditLeaderboardName && usernameSaveStatus ? <p className="game-share-status">{usernameSaveStatus}</p> : null}
+            </section>
+          ) : null}
+        </div>
       ) : null}
     </main>
   );

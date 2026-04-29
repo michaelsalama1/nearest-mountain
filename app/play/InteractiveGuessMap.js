@@ -40,6 +40,7 @@ const BASEMAPS = {
 
 export default function InteractiveGuessMap({
   guess,
+  attempts = [],
   submitted,
   challenge,
   canPlaceGuess,
@@ -79,6 +80,22 @@ export default function InteractiveGuessMap({
             pathOptions={{ color: "#ef4444", fillColor: "#ef4444", fillOpacity: 0.8 }}
           />
         ) : null}
+
+        {attempts.map((attempt) =>
+          attempt?.guess ? (
+            <CircleMarker
+              key={`attempt-${attempt.tryNumber}`}
+              center={[attempt.guess.lat, attempt.guess.lon]}
+              radius={6}
+              pathOptions={{
+                color: "#cbd5e1",
+                fillColor: "#cbd5e1",
+                fillOpacity: 0.12,
+                dashArray: "2 6"
+              }}
+            />
+          ) : null
+        )}
 
         {submitted ? (
           <>
