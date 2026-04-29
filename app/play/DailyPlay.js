@@ -552,7 +552,7 @@ export default function DailyPlay({ testDateId = "" }) {
           {currentRound.description ? <p>{currentRound.description}</p> : null}
           <div className="game-controls">
             {!finished ? <p>Attempt {attempts.length + 1}</p> : null}
-            {latest ? <p className="game-distance-readout">Last attempt<span className="game-distance-value">{latest.distanceKm.toFixed(1)} km<img src={`/arrows/${normalizeDirection(latest.direction)}.svg?v=2`} alt={normalizeDirection(latest.direction)} style={{ display: "inline-block", width: "0.6em", height: "0.6em", marginLeft: "0.2em", verticalAlign: "-0.08em", background: "transparent", boxShadow: "none", filter: "brightness(0) invert(1)" }} /></span></p> : <p>Each attempt shows distance and direction. A summit is any guess within {SUMMIT_DISTANCE_KM} km of the peak.</p>}
+            {latest ? <p className="game-distance-readout">Last attempt<span className="game-distance-value">{latest.distanceKm.toFixed(1)} km<img src={`/arrows/${normalizeDirection(latest.direction)}.svg?v=2`} alt={normalizeDirection(latest.direction)} style={{ display: "inline-block", width: "0.6em", height: "0.6em", marginLeft: "0.2em", verticalAlign: "-0.08em", background: "transparent", boxShadow: "none", filter: "brightness(0) invert(1)" }} /></span></p> : <p>Select the point of the highest peak in the photo (not the location where the photo was taken). A summit is any guess within {SUMMIT_DISTANCE_KM} km of the peak.</p>}
           </div>
         </section>
 
