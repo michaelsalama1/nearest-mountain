@@ -344,7 +344,7 @@ export default function DailyPlay({ testDateId = "" }) {
   useEffect(() => {
     let cancelled = false;
     async function loadLeaderboardRank() {
-      if (!finished || !challengeDate || !firebaseUserId) return;
+      if (!challengeDate) return;
       const services = getFirebaseServices();
       if (!services) return;
       try {
@@ -377,7 +377,7 @@ export default function DailyPlay({ testDateId = "" }) {
           return a.totalDistance - b.totalDistance;
         });
 
-        const myId = `${challengeDate}_${firebaseUserId}`;
+        const myId = firebaseUserId ? `${challengeDate}_${firebaseUserId}` : "";
         const myIndex = rows.findIndex((row) => row.id === myId);
         if (!cancelled) {
           setLeaderboardRank(myIndex >= 0 ? myIndex + 1 : null);
@@ -529,7 +529,7 @@ export default function DailyPlay({ testDateId = "" }) {
           </div>
           {dailyLeaderboardRows.length ? (
             <div className="game-final-modal game-final-modal--leaderboard" onClick={(e) => e.stopPropagation()}>
-              <p className="game-final-modal__eyebrow">Today's leaderboard</p>
+              <p className="game-final-modal__eyebrow">Today&apos;s leaderboard</p>
               <ul className="game-breakdown-list" aria-label="Daily leaderboard">
                 {dailyLeaderboardRows.map((row, index) => (
                   <li key={row.id} className="game-breakdown-list__row">
@@ -566,10 +566,10 @@ export default function DailyPlay({ testDateId = "" }) {
         </section>
       </div>
 
-      {attempts.length ? (
-        <div className="game-grid game-grid--play game-grid--summary">
-          <section className="game-result game-card game-card--summary">
-            <h3 className="game-card__head">Your attempt history</h3>
+      <div className="game-grid game-grid--play game-grid--summary">
+        <section className="game-result game-card game-card--summary">
+          <h3 className="game-card__head">Your attempt history</h3>
+          {attempts.length ? (
             <ul className="game-breakdown-list" aria-label="Attempt results">
               {attempts.map((item) => (
                 <li key={item.tryNumber} className="game-breakdown-list__row">
@@ -579,26 +579,30 @@ export default function DailyPlay({ testDateId = "" }) {
                 </li>
               ))}
             </ul>
-            {finished ? <div className="game-final-total-row"><p className="game-final-total-line"><strong>Closest attempt</strong> {closestAttempt?.distanceKm?.toFixed(1) || "0.0"} km</p><button type="button" className="game-btn game-btn--primary" onClick={onShare}>Share</button></div> : null}
-            {shareStatus ? <p className="game-share-status">{shareStatus}</p> : null}
-          </section>
-          {finished && dailyLeaderboardRows.length ? (
-            <section className="game-result game-card game-card--summary">
-              <h3 className="game-card__head">Today's leaderboard</h3>
-              <ul className="game-breakdown-list" aria-label="Daily leaderboard summary">
-                {dailyLeaderboardRows.map((row, index) => (
-                  <li key={`summary-${row.id}`} className="game-breakdown-list__row">
-                    <span className="game-breakdown-list__round">#{index + 1}</span>
-                    {renderLeaderboardNameCell(row)}
-                    <span className="game-breakdown-list__pts">{row.attemptsCount} tries • {row.totalDistance.toFixed(1)} km</span>
-                  </li>
-                ))}
-              </ul>
-              {canEditLeaderboardName && usernameSaveStatus ? <p className="game-share-status">{usernameSaveStatus}</p> : null}
-            </section>
-          ) : null}
-        </div>
-      ) : null}
+          ) : (
+            <p>No attempts yet. Place your first guess on the map.</p>
+          )}
+          {finished ? <div className="game-final-total-row"><p className="game-final-total-line"><strong>Closest attempt</strong> {closestAttempt?.distanceKm?.toFixed(1) || "0.0"} km</p><button type="button" className="game-btn game-btn--primary" onClick={onShare}>Share</button></div> : null}
+          {shareStatus ? <p className="game-share-status">{shareStatus}</p> : null}
+        </section>
+        <section className="game-result game-card game-card--summary">
+          <h3 className="game-card__head">Today&apos;s leaderboard</h3>
+          {dailyLeaderboardRows.length ? (
+            <ul className="game-breakdown-list" aria-label="Daily leaderboard summary">
+              {dailyLeaderboardRows.map((row, index) => (
+                <li key={`summary-${row.id}`} className="game-breakdown-list__row">
+                  <span className="game-breakdown-list__round">#{index + 1}</span>
+                  {renderLeaderboardNameCell(row)}
+                  <span className="game-breakdown-list__pts">{row.attemptsCount} tries • {row.totalDistance.toFixed(1)} km</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>No completed summits yet for today.</p>
+          )}
+          {canEditLeaderboardName && usernameSaveStatus ? <p className="game-share-status">{usernameSaveStatus}</p> : null}
+        </section>
+      </div>
     </main>
   );
 }
