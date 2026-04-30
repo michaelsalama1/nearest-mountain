@@ -197,6 +197,15 @@ export default function Home() {
 
     return (
         <div className="full-container">
+            <div className="summit-daily-cta-wrap">
+                <Link href="/play" className="summit-daily-cta__link">
+                    <span className="summit-daily-cta__label">play the Daily Challenge</span>
+                    <span className="summit-daily-cta__arrow" aria-hidden="true">
+                        &rarr;
+                    </span>
+                </Link>
+            </div>
+
             <div className="app-container">
                 <h1>Nearest Mountain &#127956;</h1>
                 {latitude && longitude ? (
@@ -309,17 +318,6 @@ export default function Home() {
                     <p>Loading nearest mountain...</p>
                 )}
             </div>
-
-            {nearestMountains ? (
-                <div className="summit-daily-cta-wrap">
-                    <Link href="/play" className="summit-daily-cta__link">
-                        <span className="summit-daily-cta__label">play the Daily Challenge</span>
-                        <span className="summit-daily-cta__arrow" aria-hidden="true">
-                            &rarr;
-                        </span>
-                    </Link>
-                </div>
-            ) : null}
 
             <div className="about">
     <button onClick={() => setShowAbout(true)}>
