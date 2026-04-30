@@ -536,11 +536,20 @@ export default function DailyPlay({ testDateId = "" }) {
             <div className="game-final-modal game-final-modal--leaderboard" onClick={(e) => e.stopPropagation()}>
               <p className="game-final-modal__eyebrow">Today&apos;s leaderboard</p>
               <ul className="game-breakdown-list" aria-label="Daily leaderboard">
+                <li className="game-breakdown-list__row game-breakdown-list__row--header" aria-hidden="true">
+                  <span className="game-breakdown-list__col game-breakdown-list__col--place">Place</span>
+                  <span className="game-breakdown-list__col game-breakdown-list__col--user">User</span>
+                  <span className="game-breakdown-list__col game-breakdown-list__col--attempts">Attempts</span>
+                  <span className="game-breakdown-list__col game-breakdown-list__col--distance">Total Dist</span>
+                </li>
                 {dailyLeaderboardRows.map((row, index) => (
                   <li key={row.id} className="game-breakdown-list__row">
                     <span className="game-breakdown-list__round">#{index + 1}</span>
                     {renderLeaderboardNameCell(row)}
-                    <span className="game-breakdown-list__pts">{row.attemptsCount} tries • {row.totalDistance.toFixed(1)} km</span>
+                    <span className="game-breakdown-list__pts">
+                      <span className="game-breakdown-list__attempts">{row.attemptsCount}</span>
+                      <span className="game-breakdown-list__distance">{row.totalDistance.toFixed(1)} km</span>
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -593,11 +602,20 @@ export default function DailyPlay({ testDateId = "" }) {
           <h3 className="game-card__head">Today&apos;s leaderboard</h3>
           {dailyLeaderboardRows.length ? (
             <ul className="game-breakdown-list" aria-label="Daily leaderboard summary">
+              <li className="game-breakdown-list__row game-breakdown-list__row--header" aria-hidden="true">
+                <span className="game-breakdown-list__col game-breakdown-list__col--place">Place</span>
+                <span className="game-breakdown-list__col game-breakdown-list__col--user">User</span>
+                <span className="game-breakdown-list__col game-breakdown-list__col--attempts">Attempts</span>
+                <span className="game-breakdown-list__col game-breakdown-list__col--distance">Total Dist</span>
+              </li>
               {dailyLeaderboardRows.map((row, index) => (
                 <li key={`summary-${row.id}`} className="game-breakdown-list__row">
                   <span className="game-breakdown-list__round">#{index + 1}</span>
                   {renderLeaderboardNameCell(row)}
-                  <span className="game-breakdown-list__pts">{row.attemptsCount} tries • {row.totalDistance.toFixed(1)} km</span>
+                  <span className="game-breakdown-list__pts">
+                    <span className="game-breakdown-list__attempts">{row.attemptsCount}</span>
+                    <span className="game-breakdown-list__distance">{row.totalDistance.toFixed(1)} km</span>
+                  </span>
                 </li>
               ))}
             </ul>

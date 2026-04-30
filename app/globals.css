@@ -1817,6 +1817,46 @@ a.game-btn {
   font-size: 1.05rem;
   margin-left: auto;
   flex: 0 0 auto;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.game-breakdown-list__attempts {
+  min-width: 2ch;
+  text-align: right;
+}
+
+.game-breakdown-list__distance {
+  min-width: 8ch;
+  text-align: right;
+}
+
+.game-breakdown-list__row--header {
+  background: rgba(30, 41, 59, 0.45);
+  font-size: 0.76rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #94a3b8;
+  font-weight: 700;
+}
+
+.game-breakdown-list__col {
+  display: inline-block;
+}
+
+.game-breakdown-list__col--place {
+  flex: 0 0 auto;
+}
+
+.game-breakdown-list__col--user {
+  flex: 1 1 160px;
+  min-width: 0;
+}
+
+.game-breakdown-list__col--attempts,
+.game-breakdown-list__col--distance {
+  margin-left: auto;
 }
 
 .game-score-tier--bad {
