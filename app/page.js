@@ -319,6 +319,17 @@ export default function Home() {
                 )}
             </div>
 
+            <div className="summit-ext-cta-wrap">
+                <a
+                    href="https://github.com/michaelsalama1/nearest-mountain/tree/main/ext"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="summit-ext-link"
+                >
+                    now available as a browser extension for use in google maps
+                </a>
+            </div>
+
             <div className="about">
     <button onClick={() => setShowAbout(true)}>
         about
