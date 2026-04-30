@@ -500,6 +500,7 @@ export default function DailyPlay({ testDateId = "" }) {
   return (
     <main className="game-shell game-play game-animate-in">
       <header className="game-hud" role="banner">
+        <div className="game-hud__brand"><span className="game-hud__mark" aria-hidden>⛰</span><div className="game-hud__brand-text"><h1 className="game-hud__title">Summit Attempt</h1><p className="game-hud__date">{formatChallengeDate(challengeDate)}</p>{testDateId ? <p className="game-hud__preview">Preview (gamemaster test link)</p> : null}</div></div>
         <a
           className="game-hud__badge game-hud__badge-link game-hud__share-corner"
           href={ROUND_SUBMISSION_FORM_URL}
@@ -508,7 +509,6 @@ export default function DailyPlay({ testDateId = "" }) {
         >
           Submit your own round!
         </a>
-        <div className="game-hud__brand"><span className="game-hud__mark" aria-hidden>⛰</span><div className="game-hud__brand-text"><h1 className="game-hud__title">Summit Attempt</h1><p className="game-hud__date">{formatChallengeDate(challengeDate)}</p>{testDateId ? <p className="game-hud__preview">Preview (gamemaster test link)</p> : null}</div></div>
         <div className="game-hud__stats">
           <p className="game-hud__scoreline"><span className="game-hud__label">Attempts</span><span className="game-hud__scoreval">{attempts.length}</span></p>
         </div>
@@ -537,7 +537,7 @@ export default function DailyPlay({ testDateId = "" }) {
               <p className="game-final-modal__eyebrow">Today&apos;s leaderboard</p>
               <ul className="game-breakdown-list" aria-label="Daily leaderboard">
                 <li className="game-breakdown-list__row game-breakdown-list__row--header" aria-hidden="true">
-                  <span className="game-breakdown-list__col game-breakdown-list__col--place">Place</span>
+                  <span className="game-breakdown-list__col game-breakdown-list__col--place">Pl</span>
                   <span className="game-breakdown-list__col game-breakdown-list__col--user">User</span>
                   <span className="game-breakdown-list__col game-breakdown-list__col--attempts">Attempts</span>
                   <span className="game-breakdown-list__col game-breakdown-list__col--distance">Total Dist</span>
@@ -603,7 +603,7 @@ export default function DailyPlay({ testDateId = "" }) {
           {dailyLeaderboardRows.length ? (
             <ul className="game-breakdown-list" aria-label="Daily leaderboard summary">
               <li className="game-breakdown-list__row game-breakdown-list__row--header" aria-hidden="true">
-                <span className="game-breakdown-list__col game-breakdown-list__col--place">Place</span>
+                <span className="game-breakdown-list__col game-breakdown-list__col--place">Pl</span>
                 <span className="game-breakdown-list__col game-breakdown-list__col--user">User</span>
                 <span className="game-breakdown-list__col game-breakdown-list__col--attempts">Attempts</span>
                 <span className="game-breakdown-list__col game-breakdown-list__col--distance">Total Dist</span>

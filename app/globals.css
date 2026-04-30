@@ -1159,14 +1159,21 @@ a.game-hud__badge-link:hover {
     justify-content: center;
   }
 
+  .game-hud__mark {
+    display: none;
+  }
+
   .game-hud__stats {
     align-items: center;
     text-align: center;
   }
 
   .game-hud__share-corner {
-    top: 50%;
-    right: 16px;
+    position: static;
+    top: auto;
+    right: auto;
+    transform: rotate(-2.5deg);
+    justify-self: center;
   }
 
   .game-hud__scoreline {
@@ -1833,6 +1840,7 @@ a.game-btn {
 }
 
 .game-breakdown-list__row--header {
+  flex-wrap: nowrap;
   background: rgba(30, 41, 59, 0.45);
   font-size: 0.76rem;
   letter-spacing: 0.06em;
@@ -1843,6 +1851,7 @@ a.game-btn {
 
 .game-breakdown-list__col {
   display: inline-block;
+  white-space: nowrap;
 }
 
 .game-breakdown-list__col--place {
@@ -1857,6 +1866,14 @@ a.game-btn {
 .game-breakdown-list__col--attempts,
 .game-breakdown-list__col--distance {
   margin-left: auto;
+}
+
+@media (max-width: 640px) {
+  .game-breakdown-list__row--header {
+    font-size: 0.68rem;
+    letter-spacing: 0.03em;
+    gap: 6px;
+  }
 }
 
 .game-score-tier--bad {
