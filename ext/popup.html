@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NearestMountain</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Find the Nearest Mountain 🏔️</h1>
+        
+        <!-- Location Display -->
+        <div id="locationDisplay" class="location" style="display: none;">
+            <p class="your-loc">
+                Your Location: <span id="displayLat">0</span>, <span id="displayLon">0</span>
+            </p>
+            <button id="changeCoordinatesBtn" class="change-coordinates-button">
+                Change Coordinates
+            </button>
+        </div>
+        
+        <!-- Loading/Error States -->
+        <div id="loadingState">
+            <p class="error-code" id="statusMessage">Fetching location...</p>
+            <button id="randomPeakBtn" class="random-peak-button">
+                Random Range
+            </button>
+        </div>
+        
+        <!-- Coordinate Input Form -->
+        <form id="coordinateForm" class="coordinate-input-form" style="display: none;">
+            <div class="coordinate-input-inline">
+                <input
+                    type="number"
+                    id="latitude"
+                    step="any"
+                    placeholder="latitude"
+                    required
+                />
+                <input
+                    type="number"
+                    id="longitude"
+                    step="any"
+                    placeholder="longitude"
+                    required
+                />
+            </div>
+            <button type="submit" class="submit-coordinates-button">
+                Go 📍
+            </button>
+        </form>
+        
+        <!-- Elevation Control -->
+        <div class="elevation-control">
+            <label for="elevation">Desired Elevation (meters): </label>
+            <input
+                type="number"
+                id="elevation"
+                value="500"
+                min="0"
+                placeholder="Enter elevation in meters"
+                class="elevation-input"
+            />
+        </div>
+        
+        <!-- Mountain Information -->
+        <div id="mountainInfo" class="mountain-info" style="display: none;">
+            <p><strong>Nearest Mountain Range:<br /><span class="targetRange" id="mountainName">Loading...</span></strong><br /><span id="mountainRegion">Loading...</span></p>
+            <p>Location: <span id="mountainLat">0</span>, <span id="mountainLon">0</span></p>
+            <p>Distance: <span id="mountainDistance">0</span> kilometers away</p>
+            <p><strong>Max Elevation: </strong><span id="mountainElevation">0</span>m</p>
+            
+            <!-- Navigation Controls -->
+            <div id="sliderControls" class="slider-controls" style="display: none;">
+                <button id="prevBtn" class="prev-button">❮</button>
+                <span class="slider-index" id="sliderIndex">1 / 1</span>
+                <button id="nextBtn" class="next-button">❯</button>
+            </div>
+            
+            <p>
+                <a id="googleMapsLink" href="#" class="google-map-link">
+                    View on Google Maps
+                </a>
+            </p>
+            
+            <button id="randomRangeBtn" class="random-peak-button">
+            Random Mountain Range
+            </button>
+        </div>
+        
+        <!-- Loading Message -->
+        <div id="loadingMessage" style="display: none;">
+            <p>Loading nearest mountain...</p>
+        </div>
+        
+        <!-- About Section -->
+        <div class="about">
+            <button id="aboutBtn">
+                about
+            </button>
+        </div>
+        
+        <!-- About Overlay -->
+        <div id="aboutOverlay" class="about-overlay" style="display: none;">
+            <button class="close-about" id="closeAboutBtn">
+                ✖ Close
+            </button>
+            <div class="about-container">
+                <p>
+                    Welcome to <code>nearestmountain.com</code>, a tool for people who are allergic to sea level. It is a simple calculator that determines the closest mountain range to your current location. It uses the GMBA Mountain Inventory database, cited below, and as a result it outputs the geographic center of the nearest ranges, not individual mountain peaks.
+                </p>
+                <p>
+                    The random range generator outputs a random mountain range from the GMBA database based on your selected elevation criteria.
+                </p>
+                <p>
+                    Background images: Nevado Sajama, Oruro, Bolivia & Garnet Peak, California, USA.
+                </p>
+                <p>
+                    I can be reached at <code>me@michaelsalama.com</code>
+                </p>
+                <p class="citation">
+                    Snethlage, M.A., Geschke, J., Spehn, E.M., Ranipeta, A., Yoccoz, N.G., Körner, Ch., Jetz, W., Fischer, M. & Urbach, D. GMBA Mountain Inventory v2. GMBA-EarthEnv. https://doi.org/10.48601/earthenv-t9k2-1407 (2022).
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <script src="popup.js"></script>
+</body>
+</html>

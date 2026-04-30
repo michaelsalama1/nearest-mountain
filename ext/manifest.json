@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "NearestMountain",
+  "version": "1.0.0",
+  "description": "for people who are allergic to sea level. find the nearest mountain range from any google maps link.",
+  "permissions": [
+    "tabs",
+    "activeTab"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Nearest Mountain"
+  },
+  "icons": {
+    "16": "icons/mtn.png",
+    "48": "icons/mtn.png",
+    "128": "icons/mtn.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
+}
