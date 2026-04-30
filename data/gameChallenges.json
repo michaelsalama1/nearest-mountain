@@ -133,12 +133,12 @@
     "id": "2026-05-01",
     "rounds": [
       {
-        "title": "Bear Mountain, NY, USA",
+        "title": "Gunsights",
         "description": "",
-        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/6/6a/Bear_Mountain_Bridge%2C_NY_from_river_level_loking_East.JPG",
+        "imageUrl": "https://res.cloudinary.com/dwtaveb0v/image/upload/v1777512784/gunsight_-_Saben_Young_n1edfu.jpg",
         "hint": "This is just one hour from a major population center.",
-        "latitude": 41.311838,
-        "longitude": -74.001746
+        "latitude": 48.30733449813689,
+        "longitude": -120.99429410740554
       }
     ]
   },
