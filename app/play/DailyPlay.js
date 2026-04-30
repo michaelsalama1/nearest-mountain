@@ -162,8 +162,13 @@ export default function DailyPlay({ testDateId = "" }) {
       setError("");
       const trimmed = (testDateId || "").trim();
       const q = trimmed ? `?date=${encodeURIComponent(trimmed)}` : "";
+      const browserTimeZone =
+        typeof Intl !== "undefined" ? Intl.DateTimeFormat().resolvedOptions().timeZone : "";
       try {
-        const res = await fetch(`/api/game/daily${q}`, { cache: "no-store" });
+        const res = await fetch(`/api/game/daily${q}`, {
+          cache: "no-store",
+          headers: browserTimeZone ? { "x-timezone": browserTimeZone } : undefined
+        });
         const contentType = res.headers.get("content-type") || "";
         let data = null;
         if (contentType.includes("application/json")) {

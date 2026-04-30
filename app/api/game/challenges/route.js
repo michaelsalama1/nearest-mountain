@@ -48,7 +48,7 @@ function coercedLatLon(round) {
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
-    const date = searchParams.get("date") || getTodayIsoDate();
+    const date = searchParams.get("date") || getTodayIsoDate(request.headers.get("x-timezone") || "");
     const challenges = await readChallenges();
     const challenge = normalizeChallenge(challenges[date], date);
     return Response.json({ date, challenge });

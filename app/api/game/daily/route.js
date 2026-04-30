@@ -29,7 +29,8 @@ function normalizeChallenge(challenge, date) {
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
-  const requestedDate = searchParams.get("date") || getTodayIsoDate();
+  const requestedDate =
+    searchParams.get("date") || getTodayIsoDate(request.headers.get("x-timezone") || "");
   const challenges = await readChallenges();
 
   const fallback = pickFallbackChallenge(challenges);
