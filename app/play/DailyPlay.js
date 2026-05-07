@@ -148,6 +148,10 @@ export default function DailyPlay({ testDateId = "" }) {
     if (typeof window === "undefined") return true;
     return window.sessionStorage.getItem(DAILY_WELCOME_MODAL_SESSION_KEY) === "1";
   });
+  const [hasVisitedBefore, setHasVisitedBefore] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.localStorage.getItem(DAILY_WELCOME_DONE_KEY) === "1";
+  });
   const [firebaseUserId, setFirebaseUserId] = useState("");
   const [leaderboardRank, setLeaderboardRank] = useState(null);
   const [dailyLeaderboardRows, setDailyLeaderboardRows] = useState([]);
@@ -283,6 +287,7 @@ export default function DailyPlay({ testDateId = "" }) {
 
   const dismissWelcomeModal = () => {
     setDismissedWelcomeModal(true);
+    setHasVisitedBefore(true);
     if (typeof window !== "undefined") {
       window.localStorage.setItem(DAILY_WELCOME_DONE_KEY, "1");
       window.sessionStorage.setItem(DAILY_WELCOME_MODAL_SESSION_KEY, "1");
@@ -515,7 +520,7 @@ export default function DailyPlay({ testDateId = "" }) {
       </header>
 
       {showWelcomeModal ? (
-        <div className="game-welcome-backdrop" onClick={dismissWelcomeModal}><div className="game-welcome-dialog" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true"><div><h2 className="game-welcome-title">Summit Attempt Daily Challenge</h2><p className="game-welcome-lead">You have unlimited attempts to pinpoint this mountain.</p><p className="game-welcome-lead">Click the point of the highest peak in the photo, not the location where the photo was taken.</p><p className="game-welcome-lead">After each attempt, you will see both distance and direction.</p><p className="game-welcome-lead">You summit when a guess is within {SUMMIT_DISTANCE_KM} km of the true peak. Get there in as few attempts as you can.</p></div><div className="game-welcome-actions"><button type="button" className="game-btn game-btn--primary game-btn--big" onClick={dismissWelcomeModal} autoFocus>Start</button></div></div></div>
+        <div className="game-welcome-backdrop" onClick={dismissWelcomeModal}><div className="game-welcome-dialog" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true"><div>{hasVisitedBefore ? (<><h2 className="game-welcome-title">Summit Attempt needs your help!</h2><p className="game-welcome-lead">If you enjoy this game, please help keep it alive by submitting your own mountain photos with coordinates. It will help keep the game alive (currently it&apos;s all me), and you will be credited!</p></>) : (<><h2 className="game-welcome-title">Summit Attempt Daily Challenge</h2><p className="game-welcome-lead">You have unlimited attempts to pinpoint this mountain.</p><p className="game-welcome-lead">Click the point of the highest peak in the photo, not the location where the photo was taken.</p><p className="game-welcome-lead">After each attempt, you will see both distance and direction.</p><p className="game-welcome-lead">You summit when a guess is within {SUMMIT_DISTANCE_KM} km of the true peak. Get there in as few attempts as you can.</p></>)}</div><div className="game-welcome-actions">{hasVisitedBefore ? (<><a className="game-btn game-btn--primary game-btn--big" href={ROUND_SUBMISSION_FORM_URL} target="_blank" rel="noopener noreferrer">Submit a round</a><button type="button" className="game-btn game-btn--link" onClick={dismissWelcomeModal}>Maybe later, just let me play</button></>) : (<button type="button" className="game-btn game-btn--primary game-btn--big" onClick={dismissWelcomeModal} autoFocus>Start</button>)}</div></div></div>
       ) : null}
 
       {finished && showFinalScoreModal ? (
