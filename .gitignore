@@ -3,3 +3,5 @@ node_modules/
 .next-build/
 .next-dev/
 .env.local
+# raw GLIMS glacier data (large)
+data/glims/
